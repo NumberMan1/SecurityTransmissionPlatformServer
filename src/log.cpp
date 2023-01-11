@@ -1,4 +1,4 @@
-﻿#include "log.hpp"
+﻿#include "log.h"
 
 void mine_log::input_log(const std::string_view &_message,
          const std::string_view &_filename,

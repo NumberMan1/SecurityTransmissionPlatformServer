@@ -2,7 +2,6 @@
 #include <iostream>
 #include <exception>
 #include <vector>
-#include "log.hpp"
 
 std::shared_ptr<mine_libevent::EventHandler> 
 mine_libevent::EventHandler::mInstance = nullptr;

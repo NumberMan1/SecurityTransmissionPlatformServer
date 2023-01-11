@@ -12,7 +12,7 @@
 
 #include <memory>
 #include <map>
-#include "log.hpp"
+#include "log.h"
 
 namespace mine_libevent{
 

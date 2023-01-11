@@ -5,25 +5,35 @@
 #include <boost/asio.hpp>
 #include <boost/thread/thread_pool.hpp>
 
+#include "msg.h"
+
 namespace platform {
-    
+
 class Session {
 public:
+    constexpr static std::uint32_t kMaxNetMsgLen = 512;
     inline boost::asio::ip::tcp::socket& socket() {
         return socket_;
     }
     explicit Session(boost::asio::io_service &io_service);
     void Start();
+    // async_read用于处理消息头部
+    // void HandleReadHeader(const boost::system::error_code &error);
+    // async_read用于处理消息主体
+    void HandleReadBody(const boost::system::error_code &error);
 private:
     boost::asio::ip::tcp::socket socket_;
+    transmission_msg::net::Message<std::array<char, kMaxNetMsgLen>> msg_;
 };
 class ServerOP {
 public:
     explicit ServerOP(boost::asio::io_service &io_service,
                       const boost::asio::ip::tcp::endpoint &endpoint,
                       const std::string &server_id);
+    // 用于处理async_accept
     void HandleAccept(std::shared_ptr<Session> session_ptr,
                       const boost::system::error_code &error);
+
     bool SeckeyAgree();
     bool SeckeyVerify();
     bool SeckeyLogout();

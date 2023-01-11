@@ -9,7 +9,56 @@ platform::Session::Session(boost::asio::io_service &io_service)
 }
 
 void platform::Session::Start() {
-    std::cout << "hello" << '\n';
+    // async_read(
+    //     socket_,
+    //     buffer(msg_.body.data(), kMaxNetMsgLen),
+    //     std::bind(
+    //         &Session::HandleReadHeader,
+    //         this, std::placeholders::_1
+    //     )
+    // );
+    async_read(
+        socket_,
+        buffer(msg_.body.data(), msg_.Size()),
+        std::bind(
+            &Session::HandleReadBody,
+            this, std::placeholders::_1
+        )
+    );
+}
+
+// void platform::Session::HandleReadHeader(const boost::system::error_code &error) {
+//     if (!error) {
+//         async_read(
+//             socket_,
+//             buffer(msg_.body.data(), .size()),
+//             std::bind(
+//                 &Session::HandleReadBody,
+//                 this, std::placeholders::_1
+//             )
+//         );
+//     }
+// }
+
+void platform::Session::HandleReadBody(const boost::system::error_code &error) {
+    if (!error) {
+        // async_read(
+        //     socket_,
+        //     buffer(buf_.data(), Session::kMsgHeaderLen),
+        //     std::bind(
+        //         &Session::HandleReadHeader,
+        //         this, std::placeholders::_1
+        //     )
+        // );
+        async_read(
+            socket_,
+            buffer(msg_.body.data(), msg_.Size()),
+            std::bind(
+                &Session::HandleReadBody,
+                this, std::placeholders::_1
+            )
+        );
+    }
 }
 
 platform::ServerOP::ServerOP(boost::asio::io_service &io_service,
@@ -33,13 +82,15 @@ platform::ServerOP::ServerOP(boost::asio::io_service &io_service,
 void platform::ServerOP::HandleAccept(std::shared_ptr<Session> session_ptr,
                                       const boost::system::error_code &error) {
     if (!error) {
-        auto session_ptr = std::make_shared<Session>(io_service_);
-        post(thread_pool_, std::bind(&Session::Start, session_ptr.get()));
+        // 添加任务
+        post(thread_pool_, std::bind(&Session::Start, session_ptr));
+        // 继续等待连接
+        auto new_session_ptr = std::make_shared<Session>(io_service_);
         acceptor_.async_accept(
-            session_ptr->socket(),
+            new_session_ptr->socket(),
             std::bind(
                 &ServerOP::HandleAccept, this,
-                session_ptr, std::placeholders::_1
+                new_session_ptr, std::placeholders::_1
             )
         );   
     }
