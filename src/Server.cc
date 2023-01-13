@@ -5,7 +5,9 @@ using namespace boost::asio;
 
 platform::Session::Session(boost::asio::io_service &io_service)
     : socket_(io_service) {
-    
+    // msg_.body.resize(kMaxNetMsgLen);
+    // msg_.header.size = kMaxNetMsgLen;
+    buf_.resize(kMaxNetMsgLen);
 }
 
 void platform::Session::Start() {
@@ -17,9 +19,11 @@ void platform::Session::Start() {
     //         this, std::placeholders::_1
     //     )
     // );
+    std::cout << "受到连接请求\n";
     async_read(
         socket_,
-        buffer(msg_.body.data(), msg_.Size()),
+        // buffer(msg_.body.data(), msg_.Size()),
+        buffer(buf_.data(), buf_.size()),
         std::bind(
             &Session::HandleReadBody,
             this, std::placeholders::_1
@@ -52,12 +56,17 @@ void platform::Session::HandleReadBody(const boost::system::error_code &error) {
         // );
         async_read(
             socket_,
-            buffer(msg_.body.data(), msg_.Size()),
+            // buffer(msg_.body.data(), msg_.Size()),
+            buffer(buf_.data(), buf_.size()),
             std::bind(
                 &Session::HandleReadBody,
                 this, std::placeholders::_1
             )
         );
+        for (auto c : buf_) {
+            std::cout << c;
+        }
+        std::cout << "\n";
     }
 }
 
@@ -96,16 +105,16 @@ void platform::ServerOP::HandleAccept(std::shared_ptr<Session> session_ptr,
     }
 }
 
-bool platform::ServerOP::SeckeyAgree() {
+bool platform::Session::SeckeyAgree() {
     return true;
 }
 
-bool platform::ServerOP::SeckeyVerify() {
+bool platform::Session::SeckeyVerify() {
 
     return true;
 }
 
-bool platform::ServerOP::SeckeyLogout() {
+bool platform::Session::SeckeyLogout() {
     
     return true;
 }

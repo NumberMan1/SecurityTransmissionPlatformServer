@@ -40,7 +40,7 @@ public:
             // 启动io_service线程
             thrIOService = std::thread([this]() { m_service.run(); });
         } catch (std::exception& e) {
-            std::cerr << "Client Exception: " << e.what() << "\n";
+            std::cerr << "客户端异常: " << e.what() << "\n";
             return false;
         }
         return true;

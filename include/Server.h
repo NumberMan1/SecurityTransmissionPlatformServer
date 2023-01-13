@@ -9,9 +9,14 @@
 
 namespace platform {
 
+enum class NetMsgType {
+    kRequestMsg,
+    kRespondMsg
+};
+
 class Session {
 public:
-    constexpr static std::uint32_t kMaxNetMsgLen = 512;
+    constexpr static std::uint32_t kMaxNetMsgLen = 1024;
     inline boost::asio::ip::tcp::socket& socket() {
         return socket_;
     }
@@ -21,9 +26,14 @@ public:
     // void HandleReadHeader(const boost::system::error_code &error);
     // async_read用于处理消息主体
     void HandleReadBody(const boost::system::error_code &error);
+    void HandleSend(const boost::system::error_code &error);
+    bool SeckeyAgree();
+    bool SeckeyVerify();
+    bool SeckeyLogout();
 private:
     boost::asio::ip::tcp::socket socket_;
-    transmission_msg::net::Message<std::array<char, kMaxNetMsgLen>> msg_;
+    // transmission_msg::net::Message<NetMsgType> msg_;
+    std::vector<char> buf_;
 };
 class ServerOP {
 public:
@@ -34,9 +44,6 @@ public:
     void HandleAccept(std::shared_ptr<Session> session_ptr,
                       const boost::system::error_code &error);
 
-    bool SeckeyAgree();
-    bool SeckeyVerify();
-    bool SeckeyLogout();
 private:
     boost::asio::io_service &io_service_;
     boost::asio::ip::tcp::acceptor acceptor_;
