@@ -30,14 +30,8 @@ void mine_openssl::MyRSA::Init(const std::string_view &pub_key_path,
         _impl_.pri_key_ptr_ = nullptr;
     }
     // 开始工作
-    _impl_.pub_key_ptr_ = RSA_new();
-    _impl_.pri_key_ptr_ = RSA_new();
-    BIOPtr bio_pub_key_file_ptr(BIO_new_file(pub_key_path.data(), "r"), BIO_free);
-    BIOPtr bio_pri_key_file_ptr(BIO_new_file(pri_key_path.data(), "r"), BIO_free);
-    PEM_read_bio_RSAPublicKey(bio_pub_key_file_ptr.get(),
-        &_impl_.pub_key_ptr_, nullptr, nullptr);
-    PEM_read_bio_RSAPrivateKey(bio_pri_key_file_ptr.get(),
-        &_impl_.pri_key_ptr_, nullptr, nullptr);
+    InitImpl(pub_key_path, true);
+    InitImpl(pri_key_path, false);
 }
 
 void mine_openssl::MyRSA::SaveRSAKey(const std::string_view &pub_key_path,

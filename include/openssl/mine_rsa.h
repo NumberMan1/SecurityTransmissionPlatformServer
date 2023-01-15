@@ -19,6 +19,10 @@ public:
         : _impl_(RSAImpl()) {
         Init(pub_key_path, pri_key_path);
     }
+    explicit MyRSA(const std::string_view &file_name, bool is_pubkey = true)
+        : _impl_(RSAImpl()) {
+        InitImpl(file_name, is_pubkey);
+    }
     ~MyRSA() = default;
     // 生成密钥对
     void Init(const std::string_view &pub_key_path,
@@ -51,6 +55,19 @@ private:
             }
         }
     };
+    inline void InitImpl(const std::string_view &file_name, bool is_pubkey) {
+        if (is_pubkey) {
+            _impl_.pub_key_ptr_ = RSA_new();
+            BIOPtr bio_pub_key_file_ptr(BIO_new_file(file_name.data(), "r"), BIO_free);
+            PEM_read_bio_RSAPublicKey(bio_pub_key_file_ptr.get(),
+                &_impl_.pub_key_ptr_, nullptr, nullptr);
+        } else {
+            _impl_.pri_key_ptr_ = RSA_new();
+            BIOPtr bio_pri_key_file_ptr(BIO_new_file(file_name.data(), "r"), BIO_free);
+            PEM_read_bio_RSAPrivateKey(bio_pri_key_file_ptr.get(),
+                &_impl_.pri_key_ptr_, nullptr, nullptr);
+        }
+    }
     RSAImpl _impl_;
 };
 

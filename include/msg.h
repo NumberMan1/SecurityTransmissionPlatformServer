@@ -7,6 +7,14 @@
 
 namespace transmission_msg {
 
+enum class NetMsgType {
+    kSeckeyAgree,
+    kSeckeyVerify,
+    kSeckeyLogout,
+    
+    kFailed
+};
+
 namespace proto {
 
 struct Info {
@@ -30,7 +38,6 @@ public:
 struct RequestInfo
     : public Info
 {
-	proto_info::CmdType cmd;
 	std::string sign;
 };
 
@@ -57,8 +64,7 @@ public:
         enc_str_ = enc_str;
     }
 	// 编码时候使用
-	inline void InitMessage(const RequestInfo *info) {
-    	msg_.set_cmd_type(info->cmd);
+    inline void InitMessage(const RequestInfo *info) {
 	    msg_.set_client_id(info->client_id);
 	    msg_.set_server_id(info->server_id);
 	    msg_.set_sign(info->sign);
@@ -79,7 +85,6 @@ public:
                 msg_.server_id(),
                 msg_.data()
             },
-            msg_.cmd_type(),
             msg_.sign(),
         });
     }

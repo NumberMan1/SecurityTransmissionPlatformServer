@@ -295,7 +295,7 @@ private:
                     }
                 } else {
                     //发生了一些故障
-                    std::cout << "客户端断开(重新验证)" << std::endl;
+                    std::cout << "客户端断开(重新验证): " << ec.message() << std::endl;
                     m_socket.close();
                 }
             });

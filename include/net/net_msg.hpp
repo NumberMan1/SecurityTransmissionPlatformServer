@@ -55,7 +55,7 @@ struct Message {
                                   DataType &data) {
         // 检查类型是否可用
         static_assert(std::is_standard_layout_v<DataType>,
-                      "data的类型对于提取到vector过于复杂");
+                      "data的类型对于提取出vector过于复杂");
         std::size_t size_later = msg.body.size() - sizeof(DataType);
         std::memcpy(&data, msg.body.data() + size_later, sizeof(DataType));
         msg.body.resize(size_later);
