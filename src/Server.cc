@@ -4,19 +4,17 @@
 
 #include "openssl/mine_rsa.h"
 
-bool platform::Server::CheckSign(const std::string_view &pubkey_file_name) {
-    mine_openssl::MyRSA rsa{pubkey_file_name};
+bool platform::Server::CheckSign(const std::string_view &pubkey_file_name,
+                                 const std::string_view &data,
+                                 const std::string_view &sign_data) {
+    mine_openssl::MyRSA rsa(pubkey_file_name);
+    bool flag = rsa.Verify(data, sign_data);
+    return flag;
 }
 
 bool platform::Server::SeckeyAgree
     (std::shared_ptr<mine_net::Connection<TMsgType>> client,
      mine_net::Message<TMsgType> &msg) {
-    using TInfo = transmission_msg::proto::Info;
-    using TRTInfo = transmission_msg::proto::RequestInfo;
-    using TRPInfo = transmission_msg::proto::RespondInfo;
-    using TFactory = transmission_msg::proto::factory::Factory;
-    using TRTFactory = transmission_msg::proto::factory::RequestFactory;
-    using TRPFactory = transmission_msg::proto::factory::RespondFactory;
     // 进行提取
     std::size_t net_msg_len = msg.Size();
     std::string net_str;
@@ -25,18 +23,33 @@ bool platform::Server::SeckeyAgree
         msg >> c;
         net_str += c;
     }
+    using TInfo = transmission_msg::proto::Info;
+    using TRTInfo = transmission_msg::proto::RequestInfo;
+    using TRPInfo = transmission_msg::proto::RespondInfo;
+    using TFactory = transmission_msg::proto::factory::Factory;
+    using TRTFactory = transmission_msg::proto::factory::RequestFactory;
+    using TRPFactory = transmission_msg::proto::factory::RespondFactory;
     // 由于Message是后入先出，需要修正消息
     std::reverse(net_str.begin(), net_str.end());
     std::cout << net_str << '\n';
     TRTFactory requset_factory {net_str};
     auto request_msg = requset_factory.CreateMsg();
     auto request_info = request_msg->DecodeMsg();
-    std::string client_id = request_info->client_id;
-    client_id += "_pubkey.pem";
+    std::string client_id_pubkey_file_name = request_info->client_id;
+    client_id_pubkey_file_name += "_pubkey.pem";
     // 写入磁盘
-    std::ofstream file_out(client_id);
+    std::ofstream file_out(client_id_pubkey_file_name);
+    file_out << request_info->data;
+    // 验证签名
+    if (!CheckSign(client_id_pubkey_file_name,
+            request_info->data, request_info->sign)) {
+        std::filesystem::remove(client_id_pubkey_file_name);
+        return false;
+    }
     // 准备传输数据
-    // 
+    mine_net::Message<TMsgType> msg_out;
+    msg_out.header.id = TMsgType::kSeckeyAgree;
+
     return true;
 }
 

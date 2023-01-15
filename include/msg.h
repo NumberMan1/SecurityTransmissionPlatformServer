@@ -3,7 +3,7 @@
 
 #include <string>
 #include <memory>
-#include "Proto/Message.pb.h"
+#include "Message.pb.h"
 
 namespace transmission_msg {
 

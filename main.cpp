@@ -5,7 +5,7 @@
 
 int main(int argc, char *argv[]) {
     using namespace boost::asio;
-    std::ifstream in {"server.json"};
+    std::ifstream in {"for_server/server.json"};
     Json::Reader reader {};
     Json::Value root {};
     reader.parse(in, root);
