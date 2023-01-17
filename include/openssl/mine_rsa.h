@@ -7,6 +7,12 @@
 
 namespace mine_openssl {
 
+// 用于解决bool匹配问题
+enum class IsPubkeyPath {
+    kTrue,
+    kFalse
+};
+
 class MyRSA {
 public:
     static constexpr int kKeyBitsLen = 1024;
@@ -23,20 +29,14 @@ public:
         _impl_.pri_key_ptr_ = RSAPrivateKey_dup(rsa_ptr.get());
     }
     // 用于初始化以拥有的密钥
-    // 用于解决bool匹配问题
-    explicit MyRSA(const char *pub_key_path,
-                   const char *pri_key_path)
-        : _impl_(RSAImpl()) {
-        Init(pub_key_path, pri_key_path);
-    }
     explicit MyRSA(std::string_view pub_key_path,
                    std::string_view pri_key_path)
         : _impl_(RSAImpl()) {
         Init(pub_key_path, pri_key_path);
     }
-    explicit MyRSA(std::string_view file_name, bool is_pubkey)
+    explicit MyRSA(std::string_view file_name, IsPubkeyPath flag)
         : _impl_(RSAImpl()) {
-        InitImpl(file_name, is_pubkey);
+        InitImpl(file_name, flag);
     }
     ~MyRSA() = default;
     // 生成密钥对
@@ -51,8 +51,8 @@ public:
             _impl_.pri_key_ptr_ = nullptr;
         }
         // 开始工作
-        InitImpl(pub_key_path, true);
-        InitImpl(pri_key_path, false);
+        InitImpl(pub_key_path, IsPubkeyPath::kTrue);
+        InitImpl(pri_key_path, IsPubkeyPath::kFalse);
     }
     // 储存密钥对
     inline void SaveRSAKey(std::string_view pub_key_path,
@@ -134,8 +134,8 @@ private:
             }
         }
     };
-    inline void InitImpl(std::string_view file_name, bool is_pubkey) {
-        if (is_pubkey) {
+    inline void InitImpl(std::string_view file_name, IsPubkeyPath flag) {
+        if (flag == IsPubkeyPath::kTrue) {
             _impl_.pub_key_ptr_ = RSA_new();
             BIOPtr bio_pub_key_file_ptr(BIO_new_file(file_name.data(), "r"), BIO_free);
             PEM_read_bio_RSAPublicKey(bio_pub_key_file_ptr.get(),

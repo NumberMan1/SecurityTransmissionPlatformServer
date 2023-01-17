@@ -57,43 +57,50 @@ bool platform::Server::SeckeyAgree
     auto request_info = request_msg->DecodeMsg();
     std::string client_id_pubkey_file_name = request_info->client_id;
     client_id_pubkey_file_name += "_pubkey.pem";
+    client_id_pubkey_file_name.insert(0, "seckey/", 0, std::strlen("seckey/"));
     // 写入磁盘
-    std::ofstream file_out("seckey" + client_id_pubkey_file_name);
+    std::ofstream file_out(client_id_pubkey_file_name);
     file_out << request_info->data;
     // 验证签名
-    if (!CheckSign(client_id_pubkey_file_name,
-            request_info->data, request_info->sign)) {
-        std::cout << "签名校验失败" << '\n';
-        std::filesystem::remove(client_id_pubkey_file_name);
-        return false;
+    // if (!CheckSign(client_id_pubkey_file_name,
+    //         request_info->data, request_info->sign)) {
+    //     std::cout << "签名校验失败" << '\n';
+    //     std::filesystem::remove(client_id_pubkey_file_name);
+    //     return false;
+    // }
+    // // 准备传输数据
+    // mine_net::Message<TMsgType> msg_out;
+    // msg_out.header.id = TMsgType::kSeckeyAgree;
+    // // 生成随机字符串, 对称加密的密钥
+    // std::string aes_key = GetRandStr(AESKeyLen::kLen16);
+    // mine_openssl::MyRSA rsa(client_id_pubkey_file_name,
+    //                         mine_openssl::IsPubkeyPath::kTrue);
+    // // 公钥加密
+    // std::string aes_seckey = rsa.EncryptPubKey(aes_key);
+    // // 准备数据
+    // TRPInfo respond_info {
+    //     TInfo {
+    //         request_info->client_id,
+    //         server_id_,
+    //         aes_seckey
+    //     },
+    //     12 // 需要数据库操作
+    // };
+    // TRPFactory respond_factory {&respond_info};
+    // auto respond_msg = respond_factory.CreateMsg();
+    // std::string respond_str(respond_msg->EncodeMsg());
+    // for (std::size_t i = 0; i != respond_str.size(); ++i) {
+    //     // char c = respond_str.at(i);
+    //     // msg_out << c;
+    //     msg_out << respond_str.at(i);
+    // }
+    // std::cout << respond_str << "\n";
+    // // 发送
+    // client->Send(msg_out);
+    for (std::size_t i = 0; i != net_str.size(); ++i) {
+        msg << net_str.at(i);
     }
-    // 准备传输数据
-    mine_net::Message<TMsgType> msg_out;
-    msg_out.header.id = TMsgType::kSeckeyAgree;
-    // 生成随机字符串, 对称加密的密钥
-    std::string aes_key = GetRandStr(AESKeyLen::kLen16);
-    mine_openssl::MyRSA rsa(client_id_pubkey_file_name, true);
-    // 公钥加密
-    std::string aes_seckey = rsa.EncryptPubKey(aes_key);
-    // 准备数据
-    TRPInfo respond_info {
-        TInfo {
-            request_info->client_id,
-            server_id_,
-            aes_seckey
-        },
-        12 // 需要数据库操作
-    };
-    TRPFactory respond_factory {&respond_info};
-    auto respond_msg = respond_factory.CreateMsg();
-    std::string respond_str(respond_msg->EncodeMsg());
-    for (std::size_t i = 0; i != respond_str.size(); ++i) {
-        char c = respond_str.at(i);
-        msg_out << c;
-    }
-    std::cout << respond_str << "\n";
-    // 发送
-    client->Send(msg_out);
+    client->Send(msg);
     return true;
 }
 

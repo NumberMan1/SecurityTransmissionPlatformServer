@@ -55,7 +55,8 @@ private:
     inline bool CheckSign(const std::string_view &pubkey_file_name,
                           const std::string_view &data,
                           const std::string_view &sign_data) {
-        mine_openssl::MyRSA rsa(pubkey_file_name, true);
+        mine_openssl::MyRSA rsa(pubkey_file_name,
+                                mine_openssl::IsPubkeyPath::kTrue);
         return rsa.Verify(data, sign_data);
     }
     bool SeckeyAgree(std::shared_ptr<mine_net::Connection<TMsgType>> client,
