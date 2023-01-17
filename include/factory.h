@@ -21,7 +21,7 @@ class RequestFactory :
 	public Factory
 {
 public:
-	explicit RequestFactory(const std::string_view &enc)
+	explicit RequestFactory(std::string_view enc)
         : Factory{}
         , flag_{false}
         , enc_str_{enc} {}
@@ -40,7 +40,7 @@ public:
 
 private:
 	bool flag_;
-	std::string_view enc_str_;
+	std::string enc_str_;
 	RequestInfo *info_ = nullptr;
 };
 
@@ -48,7 +48,7 @@ class RespondFactory
 	: public Factory
 {
 public:
-	RespondFactory(const std::string_view &enc)
+	RespondFactory(std::string_view enc)
         : Factory{}
         , flag_{false}
         , enc_str_{enc} {}

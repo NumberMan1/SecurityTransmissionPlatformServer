@@ -42,7 +42,6 @@ PROTOBUF_CONSTEXPR RespondMsg::RespondMsg(
     /*decltype(_impl_.client_id_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.server_id_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
   , /*decltype(_impl_.data_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
-  , /*decltype(_impl_.status_)*/false
   , /*decltype(_impl_.seckey_id_)*/0
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct RespondMsgDefaultTypeInternal {
@@ -76,7 +75,6 @@ const uint32_t TableStruct_Message_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::proto_info::RespondMsg, _impl_.status_),
   PROTOBUF_FIELD_OFFSET(::proto_info::RespondMsg, _impl_.seckey_id_),
   PROTOBUF_FIELD_OFFSET(::proto_info::RespondMsg, _impl_.client_id_),
   PROTOBUF_FIELD_OFFSET(::proto_info::RespondMsg, _impl_.server_id_),
@@ -95,14 +93,13 @@ static const ::_pb::Message* const file_default_instances[] = {
 const char descriptor_table_protodef_Message_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\rMessage.proto\022\nproto_info\"N\n\nRequestMs"
   "g\022\021\n\tclient_id\030\001 \001(\014\022\021\n\tserver_id\030\002 \001(\014\022"
-  "\014\n\004sign\030\003 \001(\014\022\014\n\004data\030\004 \001(\014\"c\n\nRespondMs"
-  "g\022\016\n\006status\030\001 \001(\010\022\021\n\tseckey_id\030\002 \001(\005\022\021\n\t"
-  "client_id\030\003 \001(\014\022\021\n\tserver_id\030\004 \001(\014\022\014\n\004da"
-  "ta\030\005 \001(\014b\006proto3"
+  "\014\n\004sign\030\003 \001(\014\022\014\n\004data\030\004 \001(\014\"S\n\nRespondMs"
+  "g\022\021\n\tseckey_id\030\001 \001(\005\022\021\n\tclient_id\030\002 \001(\014\022"
+  "\021\n\tserver_id\030\003 \001(\014\022\014\n\004data\030\004 \001(\014b\006proto3"
   ;
 static ::_pbi::once_flag descriptor_table_Message_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_Message_2eproto = {
-    false, false, 216, descriptor_table_protodef_Message_2eproto,
+    false, false, 200, descriptor_table_protodef_Message_2eproto,
     "Message.proto",
     &descriptor_table_Message_2eproto_once, nullptr, 0, 2,
     schemas, file_default_instances, TableStruct_Message_2eproto::offsets,
@@ -469,7 +466,6 @@ RespondMsg::RespondMsg(const RespondMsg& from)
       decltype(_impl_.client_id_){}
     , decltype(_impl_.server_id_){}
     , decltype(_impl_.data_){}
-    , decltype(_impl_.status_){}
     , decltype(_impl_.seckey_id_){}
     , /*decltype(_impl_._cached_size_)*/{}};
 
@@ -498,9 +494,7 @@ RespondMsg::RespondMsg(const RespondMsg& from)
     _this->_impl_.data_.Set(from._internal_data(), 
       _this->GetArenaForAllocation());
   }
-  ::memcpy(&_impl_.status_, &from._impl_.status_,
-    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.seckey_id_) -
-    reinterpret_cast<char*>(&_impl_.status_)) + sizeof(_impl_.seckey_id_));
+  _this->_impl_.seckey_id_ = from._impl_.seckey_id_;
   // @@protoc_insertion_point(copy_constructor:proto_info.RespondMsg)
 }
 
@@ -512,7 +506,6 @@ inline void RespondMsg::SharedCtor(
       decltype(_impl_.client_id_){}
     , decltype(_impl_.server_id_){}
     , decltype(_impl_.data_){}
-    , decltype(_impl_.status_){false}
     , decltype(_impl_.seckey_id_){0}
     , /*decltype(_impl_._cached_size_)*/{}
   };
@@ -559,9 +552,7 @@ void RespondMsg::Clear() {
   _impl_.client_id_.ClearToEmpty();
   _impl_.server_id_.ClearToEmpty();
   _impl_.data_.ClearToEmpty();
-  ::memset(&_impl_.status_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&_impl_.seckey_id_) -
-      reinterpret_cast<char*>(&_impl_.status_)) + sizeof(_impl_.seckey_id_));
+  _impl_.seckey_id_ = 0;
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -571,43 +562,35 @@ const char* RespondMsg::_InternalParse(const char* ptr, ::_pbi::ParseContext* ct
     uint32_t tag;
     ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // bool status = 1;
+      // int32 seckey_id = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
-          _impl_.status_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
-          CHK_(ptr);
-        } else
-          goto handle_unusual;
-        continue;
-      // int32 seckey_id = 2;
-      case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
           _impl_.seckey_id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
-      // bytes client_id = 3;
-      case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
+      // bytes client_id = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           auto str = _internal_mutable_client_id();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
-      // bytes server_id = 4;
-      case 4:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
+      // bytes server_id = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
           auto str = _internal_mutable_server_id();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
-      // bytes data = 5;
-      case 5:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
+      // bytes data = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
           auto str = _internal_mutable_data();
           ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
@@ -643,34 +626,28 @@ uint8_t* RespondMsg::_InternalSerialize(
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // bool status = 1;
-  if (this->_internal_status() != 0) {
-    target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteBoolToArray(1, this->_internal_status(), target);
-  }
-
-  // int32 seckey_id = 2;
+  // int32 seckey_id = 1;
   if (this->_internal_seckey_id() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::_pbi::WireFormatLite::WriteInt32ToArray(2, this->_internal_seckey_id(), target);
+    target = ::_pbi::WireFormatLite::WriteInt32ToArray(1, this->_internal_seckey_id(), target);
   }
 
-  // bytes client_id = 3;
+  // bytes client_id = 2;
   if (!this->_internal_client_id().empty()) {
     target = stream->WriteBytesMaybeAliased(
-        3, this->_internal_client_id(), target);
+        2, this->_internal_client_id(), target);
   }
 
-  // bytes server_id = 4;
+  // bytes server_id = 3;
   if (!this->_internal_server_id().empty()) {
     target = stream->WriteBytesMaybeAliased(
-        4, this->_internal_server_id(), target);
+        3, this->_internal_server_id(), target);
   }
 
-  // bytes data = 5;
+  // bytes data = 4;
   if (!this->_internal_data().empty()) {
     target = stream->WriteBytesMaybeAliased(
-        5, this->_internal_data(), target);
+        4, this->_internal_data(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -689,33 +666,28 @@ size_t RespondMsg::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // bytes client_id = 3;
+  // bytes client_id = 2;
   if (!this->_internal_client_id().empty()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_client_id());
   }
 
-  // bytes server_id = 4;
+  // bytes server_id = 3;
   if (!this->_internal_server_id().empty()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_server_id());
   }
 
-  // bytes data = 5;
+  // bytes data = 4;
   if (!this->_internal_data().empty()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_data());
   }
 
-  // bool status = 1;
-  if (this->_internal_status() != 0) {
-    total_size += 1 + 1;
-  }
-
-  // int32 seckey_id = 2;
+  // int32 seckey_id = 1;
   if (this->_internal_seckey_id() != 0) {
     total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_seckey_id());
   }
@@ -746,9 +718,6 @@ void RespondMsg::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PRO
   }
   if (!from._internal_data().empty()) {
     _this->_internal_set_data(from._internal_data());
-  }
-  if (from._internal_status() != 0) {
-    _this->_internal_set_status(from._internal_status());
   }
   if (from._internal_seckey_id() != 0) {
     _this->_internal_set_seckey_id(from._internal_seckey_id());
@@ -784,12 +753,7 @@ void RespondMsg::InternalSwap(RespondMsg* other) {
       &_impl_.data_, lhs_arena,
       &other->_impl_.data_, rhs_arena
   );
-  ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(RespondMsg, _impl_.seckey_id_)
-      + sizeof(RespondMsg::_impl_.seckey_id_)
-      - PROTOBUF_FIELD_OFFSET(RespondMsg, _impl_.status_)>(
-          reinterpret_cast<char*>(&_impl_.status_),
-          reinterpret_cast<char*>(&other->_impl_.status_));
+  swap(_impl_.seckey_id_, other->_impl_.seckey_id_);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata RespondMsg::GetMetadata() const {

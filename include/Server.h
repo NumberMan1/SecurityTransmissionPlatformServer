@@ -7,27 +7,19 @@
 
 #include "factory.h"
 #include "net/net_client_server.hpp"
+#include "openssl/mine_rsa.h"
 
 namespace platform {
 
 class Server : public mine_net::ServerInterface<transmission_msg::NetMsgType> {
 public:
     using TMsgType = transmission_msg::NetMsgType;
-    explicit Server(std::uint16_t port) 
-        : ServerInterface(port) {
-        // 设置工作路径，初始化环境
-        std::error_code err;
-        if (!std::filesystem::exists("for_server", err)) {
-            std::filesystem::create_directory("for_server", err);
-        }
-        std::filesystem::current_path("for_server", err);
-        if (!std::filesystem::exists("seckey", err)) {
-            std::filesystem::create_directory("seckey", err);
-        }
-        if (err) {
-            std::cout << err.message() << "\n";
-        }
-    }
+    enum AESKeyLen : std::int8_t {
+        kLen16 = 16,
+        kLen24 = 24,
+        kLen32 = 32
+    };
+    explicit Server(std::string server_id, std::uint16_t port); 
     // 在验证客户端时调用
     virtual void OnClientValidated
         (std::shared_ptr<mine_net::Connection<TMsgType>> client) override  {
@@ -60,9 +52,12 @@ protected:
         );
     }
 private:
-    bool CheckSign(const std::string_view &pubkey_file_name,
-                   const std::string_view &data,
-                   const std::string_view &sign_data);
+    inline bool CheckSign(const std::string_view &pubkey_file_name,
+                          const std::string_view &data,
+                          const std::string_view &sign_data) {
+        mine_openssl::MyRSA rsa(pubkey_file_name, true);
+        return rsa.Verify(data, sign_data);
+    }
     bool SeckeyAgree(std::shared_ptr<mine_net::Connection<TMsgType>> client,
                      mine_net::Message<TMsgType> &msg);
     bool SeckeyVerify(std::shared_ptr<mine_net::Connection<TMsgType>> client,
@@ -71,7 +66,10 @@ private:
                       mine_net::Message<TMsgType> &msg);
     void Work(std::shared_ptr<mine_net::Connection<TMsgType>> client,
               mine_net::Message<TMsgType> &msg);
+    std::string GetRandStr(AESKeyLen len);
+
     boost::asio::thread_pool thread_pool_ {4};
+    std::string server_id_;
 };
 // class Session {
 // public:

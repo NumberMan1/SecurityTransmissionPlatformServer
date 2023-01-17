@@ -23,19 +23,25 @@ public:
         _impl_.pri_key_ptr_ = RSAPrivateKey_dup(rsa_ptr.get());
     }
     // 用于初始化以拥有的密钥
-    explicit MyRSA(const std::string_view &pub_key_path,
-                   const std::string_view &pri_key_path)
+    // 用于解决bool匹配问题
+    explicit MyRSA(const char *pub_key_path,
+                   const char *pri_key_path)
         : _impl_(RSAImpl()) {
         Init(pub_key_path, pri_key_path);
     }
-    explicit MyRSA(const std::string_view &file_name, bool is_pubkey = true)
+    explicit MyRSA(std::string_view pub_key_path,
+                   std::string_view pri_key_path)
+        : _impl_(RSAImpl()) {
+        Init(pub_key_path, pri_key_path);
+    }
+    explicit MyRSA(std::string_view file_name, bool is_pubkey)
         : _impl_(RSAImpl()) {
         InitImpl(file_name, is_pubkey);
     }
     ~MyRSA() = default;
     // 生成密钥对
-    inline void Init(const std::string_view &pub_key_path,
-                     const std::string_view &pri_key_path) {
+    inline void Init(std::string_view pub_key_path,
+                     std::string_view pri_key_path) {
         if (!_impl_.pub_key_ptr_) { // 用于清除之前初始化的数据
             RSA_free(_impl_.pub_key_ptr_);
             _impl_.pub_key_ptr_ = nullptr;
@@ -49,8 +55,8 @@ public:
         InitImpl(pri_key_path, false);
     }
     // 储存密钥对
-    inline void SaveRSAKey(const std::string_view &pub_key_path,
-                           const std::string_view &pri_key_path) const {
+    inline void SaveRSAKey(std::string_view pub_key_path,
+                           std::string_view pri_key_path) const {
         BIOPtr bio_pub_key_file_ptr(BIO_new_file(pub_key_path.data(), "w"), BIO_free);
         BIOPtr bio_pri_key_file_ptr(BIO_new_file(pri_key_path.data(), "w"), BIO_free);
         PEM_write_bio_RSAPublicKey(bio_pub_key_file_ptr.get(), _impl_.pub_key_ptr_);
@@ -58,7 +64,7 @@ public:
             nullptr, nullptr, 0, nullptr, nullptr);
     }
     // 公钥加密, 每次最多密钥长度-11
-    inline std::string EncryptPubKey(const std::string_view &str) const {
+    inline std::string EncryptPubKey(std::string_view str) const {
         const int len = RSA_size(_impl_.pub_key_ptr_);
         char *datas = new char[len] {0};
         RSA_public_encrypt(str.size(),
@@ -71,7 +77,7 @@ public:
         return result;
     }
     // 私钥解密, 每次最多密钥长度-11
-    inline std::string DecryptPriKey(const std::string_view &str) const {
+    inline std::string DecryptPriKey(std::string_view str) const {
         const int len = RSA_size(_impl_.pri_key_ptr_);
         char *datas = new char[len] {0};
         RSA_private_decrypt(str.size(),
@@ -84,7 +90,7 @@ public:
         return result;
     }
     // 数据签名
-    inline std::string Sign(const std::string_view &str) const {
+    std::string Sign(std::string_view str) const {
         const int len = RSA_size(_impl_.pri_key_ptr_);
         char *datas = new char[len] {0};
         unsigned out_len = 0;
@@ -101,8 +107,8 @@ public:
         return result;
     }
     // 验证签名
-    bool Verify(const std::string_view &datas,
-                const std::string_view &sign_datas) const {
+    bool Verify(std::string_view datas,
+                std::string_view sign_datas) const {
         return RSA_verify(
             NID_sha512,
             reinterpret_cast<const unsigned char*>(datas.data()),
@@ -128,7 +134,7 @@ private:
             }
         }
     };
-    inline void InitImpl(const std::string_view &file_name, bool is_pubkey) {
+    inline void InitImpl(std::string_view file_name, bool is_pubkey) {
         if (is_pubkey) {
             _impl_.pub_key_ptr_ = RSA_new();
             BIOPtr bio_pub_key_file_ptr(BIO_new_file(file_name.data(), "r"), BIO_free);

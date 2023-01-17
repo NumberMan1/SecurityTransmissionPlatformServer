@@ -48,7 +48,7 @@ public:
 	// 空对象
 	explicit RequestMsg() = default;
 	// 构造出的对象用于 解码 的场景
-	explicit RequestMsg(const std::string_view &enc_str)
+	explicit RequestMsg(std::string_view enc_str)
         : Msg{} {
         InitMessage(enc_str);
     }
@@ -60,7 +60,7 @@ public:
 	virtual ~RequestMsg() = default;
 	// Init函数给空构造准备 的s
 	// 解码使用
-	inline void InitMessage(const std::string_view &enc_str) {
+	inline void InitMessage(std::string_view enc_str) {
         enc_str_ = enc_str;
     }
 	// 编码时候使用
@@ -97,7 +97,6 @@ private:
 struct RespondInfo
     : public Info
 {
-	std::int32_t status;
 	std::int32_t seckey_id;
 };
 
@@ -108,7 +107,7 @@ public:
 	// 空对象
 	RespondMsg() = default;
     // 构造出的对象用于 解码 的场景
-	RespondMsg(const std::string_view &enc)
+	RespondMsg(std::string_view enc)
         : Msg{} {
         InitMessage(enc);
     }
@@ -120,12 +119,11 @@ public:
 	virtual ~RespondMsg() = default;
 	// Init函数给空构造准备 的s
 	// 解码使用
-	inline void InitMessage(const std::string_view &enc) {
+	inline void InitMessage(std::string_view enc) {
         enc_str_ = enc;
     }
 	// 编码时候使用
-	inline void InitMessage(const RespondInfo *info) {
-        msg_.set_status(info->status);
+    inline void InitMessage(const RespondInfo *info) {
         msg_.set_seckey_id(info->seckey_id);
         msg_.set_client_id(info->client_id);
         msg_.set_server_id(info->server_id);
@@ -146,7 +144,6 @@ public:
                 msg_.server_id(),
                 msg_.data()
             },
-            msg_.status(),
             msg_.seckey_id()
         });
     }

@@ -11,11 +11,6 @@ int main(int argc, char *argv[]) {
     reader.parse(in, root);
     std::string server_id = root["server_id"].asString();
     std::uint16_t port = root["port"].asUInt();
-    std::string s{"he"}, s2;
-    mine_net::Message<int> m;
-    m << s;
-    m >> s2;
-    std::cout << s2;
     try {
         // boost::asio::io_service io_service;
         // platform::ServerOP server(
@@ -26,7 +21,7 @@ int main(int argc, char *argv[]) {
         // std::cout << "服务器:" << server_id << "启动\n"
         //           << "端口为:" << port << "\n";
         // io_service.run();
-        platform::Server server(port);
+        platform::Server server(server_id, port);
         server.Start();
         while (true) {
             server.Update();

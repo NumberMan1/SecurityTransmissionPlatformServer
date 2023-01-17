@@ -382,13 +382,12 @@ class RespondMsg final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kClientIdFieldNumber = 3,
-    kServerIdFieldNumber = 4,
-    kDataFieldNumber = 5,
-    kStatusFieldNumber = 1,
-    kSeckeyIdFieldNumber = 2,
+    kClientIdFieldNumber = 2,
+    kServerIdFieldNumber = 3,
+    kDataFieldNumber = 4,
+    kSeckeyIdFieldNumber = 1,
   };
-  // bytes client_id = 3;
+  // bytes client_id = 2;
   void clear_client_id();
   const std::string& client_id() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -402,7 +401,7 @@ class RespondMsg final :
   std::string* _internal_mutable_client_id();
   public:
 
-  // bytes server_id = 4;
+  // bytes server_id = 3;
   void clear_server_id();
   const std::string& server_id() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -416,7 +415,7 @@ class RespondMsg final :
   std::string* _internal_mutable_server_id();
   public:
 
-  // bytes data = 5;
+  // bytes data = 4;
   void clear_data();
   const std::string& data() const;
   template <typename ArgT0 = const std::string&, typename... ArgT>
@@ -430,16 +429,7 @@ class RespondMsg final :
   std::string* _internal_mutable_data();
   public:
 
-  // bool status = 1;
-  void clear_status();
-  bool status() const;
-  void set_status(bool value);
-  private:
-  bool _internal_status() const;
-  void _internal_set_status(bool value);
-  public:
-
-  // int32 seckey_id = 2;
+  // int32 seckey_id = 1;
   void clear_seckey_id();
   int32_t seckey_id() const;
   void set_seckey_id(int32_t value);
@@ -459,7 +449,6 @@ class RespondMsg final :
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr client_id_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr server_id_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr data_;
-    bool status_;
     int32_t seckey_id_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
@@ -681,27 +670,7 @@ inline void RequestMsg::set_allocated_data(std::string* data) {
 
 // RespondMsg
 
-// bool status = 1;
-inline void RespondMsg::clear_status() {
-  _impl_.status_ = false;
-}
-inline bool RespondMsg::_internal_status() const {
-  return _impl_.status_;
-}
-inline bool RespondMsg::status() const {
-  // @@protoc_insertion_point(field_get:proto_info.RespondMsg.status)
-  return _internal_status();
-}
-inline void RespondMsg::_internal_set_status(bool value) {
-  
-  _impl_.status_ = value;
-}
-inline void RespondMsg::set_status(bool value) {
-  _internal_set_status(value);
-  // @@protoc_insertion_point(field_set:proto_info.RespondMsg.status)
-}
-
-// int32 seckey_id = 2;
+// int32 seckey_id = 1;
 inline void RespondMsg::clear_seckey_id() {
   _impl_.seckey_id_ = 0;
 }
@@ -721,7 +690,7 @@ inline void RespondMsg::set_seckey_id(int32_t value) {
   // @@protoc_insertion_point(field_set:proto_info.RespondMsg.seckey_id)
 }
 
-// bytes client_id = 3;
+// bytes client_id = 2;
 inline void RespondMsg::clear_client_id() {
   _impl_.client_id_.ClearToEmpty();
 }
@@ -771,7 +740,7 @@ inline void RespondMsg::set_allocated_client_id(std::string* client_id) {
   // @@protoc_insertion_point(field_set_allocated:proto_info.RespondMsg.client_id)
 }
 
-// bytes server_id = 4;
+// bytes server_id = 3;
 inline void RespondMsg::clear_server_id() {
   _impl_.server_id_.ClearToEmpty();
 }
@@ -821,7 +790,7 @@ inline void RespondMsg::set_allocated_server_id(std::string* server_id) {
   // @@protoc_insertion_point(field_set_allocated:proto_info.RespondMsg.server_id)
 }
 
-// bytes data = 5;
+// bytes data = 4;
 inline void RespondMsg::clear_data() {
   _impl_.data_.ClearToEmpty();
 }
