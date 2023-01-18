@@ -2,6 +2,7 @@
 #include <fstream>
 #include <json/json.h>
 #include "Server.h"
+#include <openssl/mine_hash.h>
 
 int main(int argc, char *argv[]) {
     using namespace boost::asio;
@@ -21,11 +22,11 @@ int main(int argc, char *argv[]) {
         // std::cout << "服务器:" << server_id << "启动\n"
         //           << "端口为:" << port << "\n";
         // io_service.run();
-        platform::Server server(server_id, port);
-        server.Start();
-        while (true) {
-            server.Update();
-        }
+        // platform::Server server(server_id, port);
+        // server.Start();
+        // while (true) {
+        //     server.Update();
+        // }
     } catch (std::exception &err) {
         std::cerr << "错误为:" << err.what() << std::endl;
     }

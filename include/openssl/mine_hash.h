@@ -12,17 +12,19 @@
 namespace mine_openssl {
 
 enum HashLength : std::size_t {
-    kSHA256Len = 48,
-    kSHA512Len = 64
+    kSHA256Len = SHA256_DIGEST_LENGTH,
+    kSHA384Len = SHA384_DIGEST_LENGTH,
+    kSHA512Len = SHA512_DIGEST_LENGTH
 };
-
 enum class HashType {
     kSHA256Type,
+    kSHA384Type,
     kSHA512Type
 };
 
 class Hash {
 public:
+    Hash() = delete;
     constexpr explicit Hash(const HashType &type)
         : _impl_(HashImpl()) {
         _impl_.hash_type_ = type;
@@ -35,35 +37,49 @@ public:
     /* 添加hash的参数，可以重复添加例如：
      *  hello 
      *  , world */
-    inline void Update(const std::string_view &str) noexcept {
+    inline void Update(std::string_view str) noexcept {
         EVP_DigestUpdate(_impl_.md_ctx_.get(), str.data(), str.size());
     }
-    // 使用了返回值优化
-    inline std::vector<unsigned char> Final() noexcept {
+    // 返回计算结果, 使用后该结构体将重置为初始状态
+    inline std::string Final() noexcept {
         using type = HashType;
         using len = HashLength;
-        std::vector<unsigned char> datas;
-        unsigned s = datas.size();
-        switch (_impl_.hash_type_)
-        {
+        unsigned length = 0;
+        switch (_impl_.hash_type_) {
         case type::kSHA256Type: {
-            datas.resize(len::kSHA256Len);
-            EVP_DigestFinal_ex(_impl_.md_ctx_.get(), datas.data(), &s);
-            // SHA256_Final(datas.data(),
-            //              &std::get<SHA256_CTX>(_impl_.sha_ctx_));
-            break;
+            std::array<unsigned char, len::kSHA256Len> datas{0};
+            EVP_DigestFinal_ex(_impl_.md_ctx_.get(), datas.data(), &length);
+            EVP_DigestInit_ex(_impl_.md_ctx_.get(), EVP_sha256(), nullptr);
+            std::array<char, len::kSHA256Len * 2 + 1> result_arr{0};
+            for (unsigned i = 0; i != length; ++i) {
+                sprintf(&result_arr[i * 2], "%02x", datas[i]);
+            }
+            std::string result_str(result_arr.data(), length * 2 + 1);
+            return result_str;
+        }
+        case type::kSHA384Type: {
+            std::array<unsigned char, len::kSHA384Len> datas{0};
+            EVP_DigestFinal_ex(_impl_.md_ctx_.get(), datas.data(), &length);
+            EVP_DigestInit_ex(_impl_.md_ctx_.get(), EVP_sha384(), nullptr);
+            std::array<char, len::kSHA384Len * 2 + 1> result_arr{0};
+            for (unsigned i = 0; i != length; ++i) {
+                sprintf(&result_arr[i * 2], "%02x", datas[i]);
+            }
+            std::string result_str(result_arr.data(), length * 2 + 1);
+            return result_str;
         }
         case type::kSHA512Type: {
-            datas.resize(len::kSHA512Len);
-            EVP_DigestFinal_ex(_impl_.md_ctx_.get(), datas.data(), &s);
-            // SHA512_Final(datas.data(),
-            //              &std::get<SHA512_CTX>(_impl_.sha_ctx_));
-            break;
+            std::array<unsigned char, len::kSHA512Len> datas{0};
+            EVP_DigestFinal_ex(_impl_.md_ctx_.get(), datas.data(), &length);
+            EVP_DigestInit_ex(_impl_.md_ctx_.get(), EVP_sha512(), nullptr);
+            std::array<char, len::kSHA512Len * 2 + 1> result_arr{0};
+            for (unsigned i = 0; i != length; ++i) {
+                sprintf(&result_arr[i * 2], "%02x", datas[i]);
+            }
+            std::string result_str(result_arr.data(), length * 2 + 1);
+            return result_str;
         }
-        default:
-            break;
         }
-        return datas;
     }
 
 private:
@@ -79,6 +95,11 @@ private:
                 // sha_ctx_ = SHA256_CTX();
                 // SHA256_Init(&std::get<SHA256_CTX>(sha_ctx_));
                 EVP_DigestInit_ex(md_ctx_.get(), EVP_sha256(), nullptr);
+                break;
+            case type::kSHA384Type:
+                // sha_ctx_ = SHA256_CTX();
+                // SHA256_Init(&std::get<SHA256_CTX>(sha_ctx_));
+                EVP_DigestInit_ex(md_ctx_.get(), EVP_sha384(), nullptr);
                 break;
             case type::kSHA512Type:
                 // sha_ctx_ = SHA512_CTX();
