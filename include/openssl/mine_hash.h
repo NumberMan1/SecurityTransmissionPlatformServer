@@ -44,39 +44,43 @@ public:
     inline std::string Final() noexcept {
         using type = HashType;
         using len = HashLength;
-        unsigned length = 0;
+        // unsigned length = 0;
+        std::string result_str;
         switch (_impl_.hash_type_) {
         case type::kSHA256Type: {
-            std::array<unsigned char, len::kSHA256Len> datas{0};
-            EVP_DigestFinal_ex(_impl_.md_ctx_.get(), datas.data(), &length);
-            EVP_DigestInit_ex(_impl_.md_ctx_.get(), EVP_sha256(), nullptr);
-            std::array<char, len::kSHA256Len * 2 + 1> result_arr{0};
-            for (unsigned i = 0; i != length; ++i) {
-                sprintf(&result_arr[i * 2], "%02x", datas[i]);
-            }
-            std::string result_str(result_arr.data(), length * 2 + 1);
+            // std::array<unsigned char, len::kSHA256Len> datas{0};
+            // EVP_DigestFinal_ex(_impl_.md_ctx_.get(), datas.data(), &length);
+            // EVP_DigestInit_ex(_impl_.md_ctx_.get(), EVP_sha256(), nullptr);
+            // std::array<char, len::kSHA256Len * 2 + 1> result_arr{0};
+            // for (unsigned i = 0; i != length; ++i) {
+            //     sprintf(&result_arr[i * 2], "%02x", datas[i]);
+            // }
+            // std::string result_str(result_arr.data(), length * 2 + 1);
+            FinalImpl<len::kSHA256Len>(result_str);
             return result_str;
         }
         case type::kSHA384Type: {
-            std::array<unsigned char, len::kSHA384Len> datas{0};
-            EVP_DigestFinal_ex(_impl_.md_ctx_.get(), datas.data(), &length);
-            EVP_DigestInit_ex(_impl_.md_ctx_.get(), EVP_sha384(), nullptr);
-            std::array<char, len::kSHA384Len * 2 + 1> result_arr{0};
-            for (unsigned i = 0; i != length; ++i) {
-                sprintf(&result_arr[i * 2], "%02x", datas[i]);
-            }
-            std::string result_str(result_arr.data(), length * 2 + 1);
+            // std::array<unsigned char, len::kSHA384Len> datas{0};
+            // EVP_DigestFinal_ex(_impl_.md_ctx_.get(), datas.data(), &length);
+            // EVP_DigestInit_ex(_impl_.md_ctx_.get(), EVP_sha384(), nullptr);
+            // std::array<char, len::kSHA384Len * 2 + 1> result_arr{0};
+            // for (unsigned i = 0; i != length; ++i) {
+            //     sprintf(&result_arr[i * 2], "%02x", datas[i]);
+            // }
+            // std::string result_str(result_arr.data(), length * 2 + 1);
+            FinalImpl<len::kSHA384Len>(result_str);
             return result_str;
         }
         case type::kSHA512Type: {
-            std::array<unsigned char, len::kSHA512Len> datas{0};
-            EVP_DigestFinal_ex(_impl_.md_ctx_.get(), datas.data(), &length);
-            EVP_DigestInit_ex(_impl_.md_ctx_.get(), EVP_sha512(), nullptr);
-            std::array<char, len::kSHA512Len * 2 + 1> result_arr{0};
-            for (unsigned i = 0; i != length; ++i) {
-                sprintf(&result_arr[i * 2], "%02x", datas[i]);
-            }
-            std::string result_str(result_arr.data(), length * 2 + 1);
+            // std::array<unsigned char, len::kSHA512Len> datas{0};
+            // EVP_DigestFinal_ex(_impl_.md_ctx_.get(), datas.data(), &length);
+            // EVP_DigestInit_ex(_impl_.md_ctx_.get(), EVP_sha512(), nullptr);
+            // std::array<char, len::kSHA512Len * 2 + 1> result_arr{0};
+            // for (unsigned i = 0; i != length; ++i) {
+            //     sprintf(&result_arr[i * 2], "%02x", datas[i]);
+            // }
+            // std::string result_str(result_arr.data(), length * 2 + 1);
+            FinalImpl<len::kSHA512Len>(result_str);
             return result_str;
         }
         }
@@ -111,6 +115,30 @@ private:
             }
         }
     };
+    template<HashLength len>
+    void FinalImpl(std::string &s) {
+        unsigned l = 0;
+        std::array<unsigned char, len> datas{0};
+        EVP_DigestFinal_ex(_impl_.md_ctx_.get(), datas.data(), &l);
+        switch (len) {
+        case HashLength::kSHA256Len:
+            EVP_DigestInit_ex(_impl_.md_ctx_.get(), EVP_sha256(), nullptr);
+            break;
+        case HashLength::kSHA384Len:
+            EVP_DigestInit_ex(_impl_.md_ctx_.get(), EVP_sha384(), nullptr);
+            break;
+        case HashLength::kSHA512Len:
+            EVP_DigestInit_ex(_impl_.md_ctx_.get(), EVP_sha512(), nullptr);
+            break;
+        default:
+            return;
+        }
+        std::array<char, len * 2 + 1> result_arr{0};
+        for (unsigned i = 0; i != l; ++i) {
+            sprintf(&result_arr[i * 2], "%02x", datas[i]);
+        }
+        s.append(result_arr.data(), l * 2 + 1);
+    }
     HashImpl _impl_;
 };
 
