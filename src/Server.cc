@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 
+#include "openssl/mine_hash.h"
 
 platform::Server::Server(std::string server_id, std::uint16_t port)
     : ServerInterface(port),
@@ -43,15 +44,15 @@ bool platform::Server::SeckeyAgree
         msg >> c;
         net_str += c;
     }
+    // // 由于Message是后入先出，需要修正消息
+    // std::reverse(net_str.begin(), net_str.end());
+    std::cout << net_str << '\n';
     using TInfo = transmission_msg::proto::Info;
     using TRTInfo = transmission_msg::proto::RequestInfo;
     using TRPInfo = transmission_msg::proto::RespondInfo;
     using TFactory = transmission_msg::proto::factory::Factory;
     using TRTFactory = transmission_msg::proto::factory::RequestFactory;
     using TRPFactory = transmission_msg::proto::factory::RespondFactory;
-    // 由于Message是后入先出，需要修正消息
-    std::reverse(net_str.begin(), net_str.end());
-    std::cout << net_str << '\n';
     TRTFactory requset_factory {net_str};
     auto request_msg = requset_factory.CreateMsg();
     auto request_info = request_msg->DecodeMsg();
@@ -62,45 +63,47 @@ bool platform::Server::SeckeyAgree
     std::ofstream file_out(client_id_pubkey_file_name);
     file_out << request_info->data;
     // 验证签名
-    // if (!CheckSign(client_id_pubkey_file_name,
-    //         request_info->data, request_info->sign)) {
-    //     std::cout << "签名校验失败" << '\n';
-    //     std::filesystem::remove(client_id_pubkey_file_name);
-    //     return false;
-    // }
-    // // 准备传输数据
-    // mine_net::Message<TMsgType> msg_out;
-    // msg_out.header.id = TMsgType::kSeckeyAgree;
-    // // 生成随机字符串, 对称加密的密钥
-    // std::string aes_key = GetRandStr(AESKeyLen::kLen16);
-    // mine_openssl::MyRSA rsa(client_id_pubkey_file_name,
-    //                         mine_openssl::IsPubkeyPath::kTrue);
-    // // 公钥加密
-    // std::string aes_seckey = rsa.EncryptPubKey(aes_key);
-    // // 准备数据
-    // TRPInfo respond_info {
-    //     TInfo {
-    //         request_info->client_id,
-    //         server_id_,
-    //         aes_seckey
-    //     },
-    //     12 // 需要数据库操作
-    // };
-    // TRPFactory respond_factory {&respond_info};
-    // auto respond_msg = respond_factory.CreateMsg();
-    // std::string respond_str(respond_msg->EncodeMsg());
-    // for (std::size_t i = 0; i != respond_str.size(); ++i) {
-    //     // char c = respond_str.at(i);
-    //     // msg_out << c;
-    //     msg_out << respond_str.at(i);
-    // }
-    // std::cout << respond_str << "\n";
-    // // 发送
-    // client->Send(msg_out);
-    for (std::size_t i = 0; i != net_str.size(); ++i) {
-        msg << net_str.at(i);
+    mine_openssl::Hash h(mine_openssl::HashType::kSHA512Type);
+    h.Update(request_info->data);
+    if (!CheckSign(client_id_pubkey_file_name,
+            h.Final(), request_info->sign)) {
+        std::cout << "签名校验失败" << '\n';
+        std::filesystem::remove(client_id_pubkey_file_name);
+        return false;
     }
-    client->Send(msg);
+    // 准备传输数据
+    mine_net::Message<TMsgType> msg_out;
+    msg_out.header.id = TMsgType::kSeckeyAgree;
+    // 生成随机字符串, 对称加密的密钥
+    std::string aes_key = GetRandStr(AESKeyLen::kLen16);
+    mine_openssl::MyRSA rsa(client_id_pubkey_file_name,
+                            mine_openssl::IsPubkeyPath::kTrue);
+    // 公钥加密
+    std::string aes_seckey = rsa.EncryptPubKey(aes_key);
+    // 准备数据
+    TRPInfo respond_info {
+        TInfo {
+            request_info->client_id,
+            server_id_,
+            aes_seckey
+        },
+        12 // 需要数据库操作
+    };
+    TRPFactory respond_factory {&respond_info};
+    auto respond_msg = respond_factory.CreateMsg();
+    std::string respond_str(respond_msg->EncodeMsg());
+    for (auto i = std::ssize(respond_str) - 1; i != -1; --i) {
+        // char c = respond_str.at(i);
+        // msg_out << c;
+        msg_out << respond_str.at(i);
+    }
+    std::cout << respond_str << "\n";
+    // 发送
+    client->Send(msg_out);
+    // for (std::size_t i = 0; i != net_str.size(); ++i) {
+    //     msg << net_str.at(i);
+    // }
+    // client->Send(msg);
     return true;
 }
 

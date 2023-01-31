@@ -18,8 +18,7 @@ public:
 };
 
 class RequestFactory :
-	public Factory
-{
+    public Factory {
 public:
 	explicit RequestFactory(std::string_view enc)
         : Factory{}
@@ -45,8 +44,7 @@ private:
 };
 
 class RespondFactory
-	: public Factory
-{
+    : public Factory {
 public:
 	RespondFactory(std::string_view enc)
         : Factory{}

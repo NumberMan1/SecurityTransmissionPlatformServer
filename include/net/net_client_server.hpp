@@ -1,5 +1,6 @@
 /*
 参考https://github.com/OneLoneCoder/Javidx9/blob/master/PixelGameEngine/BiggerProjects/Networking
+进行了一些补充
 */
 #pragma once
 
@@ -9,7 +10,7 @@ namespace mine_net {
 template<typename T>
 class ClientInterface {
 public:
-    ClientInterface() { }
+    ClientInterface() = default;
 
     virtual ~ClientInterface() {
         // 如果Client被销毁，总是尝试断开与服务器的连接
@@ -49,7 +50,7 @@ public:
     // 与服务器断开连接
     void Disconnect() {
         // 如果连接存在，并且已经连接，那么……
-        if(IsConnected()) {
+        if(IsOpen()) {
             // …正常断开与服务器的连接
             m_connection->Disconnect();
         }
@@ -65,18 +66,26 @@ public:
             delete useless_connection_ptr;
     }
 
-    // 检查Client是否实际连接到服务器
-    bool IsConnected() {
+    // 检查Client的socket
+    bool IsOpen() {
         if (m_connection)
-            return m_connection->IsConnected();
+            return m_connection->IsOpen();
         else
+            return false;
+    }
+
+    // 检查Client是否实际连接到服务器
+    bool IsConnect() {
+        if (m_connection)
+            return m_connection->IsConnect();
+        else 
             return false;
     }
 
 public:
     // 向服务器发送消息
     void Send(const Message<T>& msg) {
-        if (IsConnected())
+        if (IsOpen())
             m_connection->Send(msg);
     }
 
@@ -99,8 +108,7 @@ private:
 };
 
 template<typename T>
-class ServerInterface
-{
+class ServerInterface {
 public:
     // 创建一个服务器，准备监听指定的端口
     ServerInterface(std::uint16_t port)
@@ -191,7 +199,7 @@ public:
     void MessageClient(std::shared_ptr<Connection<T>> client,
                        const Message<T>& msg) {
         // 检查客户端是合法的…
-        if (client && client->IsConnected()) {
+        if (client && client->IsOpen()) {
             // …并通过连接发布消息
             client->Send(msg);
         } else {
@@ -214,7 +222,7 @@ public:
 
         for (auto& client : m_deqConnections) {
             // 检查客户端是否已连接…
-            if (client && client->IsConnected()) {
+            if (client && client->IsOpen()) {
                 if(client != pIgnoreClient)
                     client->Send(msg);
             } else {

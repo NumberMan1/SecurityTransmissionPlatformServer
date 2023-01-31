@@ -13,12 +13,12 @@ int main(int argc, char *argv[]) {
     std::string server_id = root["server_id"].asString();
     std::uint16_t port = root["port"].asUInt();
     using namespace mine_openssl;
-    Hash h1(HashType::kSHA256Type), h2(HashType::kSHA384Type), h3(HashType::kSHA512Type);
-    std::cout << h1.Final() << "\n" << h2.Final() << "\n" << h3.Final() << "\n";
-    h1.Update(server_id), h2.Update(server_id), h3.Update(server_id);
-    std::cout << h1.Final() << "\n" << h2.Final() << "\n" << h3.Final() << "\n";
-    h1.Update(server_id), h2.Update(server_id), h3.Update(server_id);
-    std::cout << h1.Final() << "\n" << h2.Final() << "\n" << h3.Final() << "\n";
+    // Hash h1(HashType::kSHA256Type), h2(HashType::kSHA384Type), h3(HashType::kSHA512Type);
+    // std::cout << h1.Final() << "\n" << h2.Final() << "\n" << h3.Final() << "\n";
+    // h1.Update(server_id), h2.Update(server_id), h3.Update(server_id);
+    // std::cout << h1.Final() << "\n" << h2.Final() << "\n" << h3.Final() << "\n";
+    // h1.Update(server_id), h2.Update(server_id), h3.Update(server_id);
+    // std::cout << h1.Final() << "\n" << h2.Final() << "\n" << h3.Final() << "\n";
     try {
         // boost::asio::io_service io_service;
         // platform::ServerOP server(

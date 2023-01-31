@@ -15,6 +15,11 @@ enum class IsPubkeyPath {
 
 class MyRSA {
 public:
+    enum class SignType {
+        kSHA256Type,
+        kSHA384Type,
+        kSHA512Type
+    };
     static constexpr int kKeyBitsLen = 1024;
     static constexpr std::size_t kBigNumW = 12345;
     // 用于生成n * 1024的bits的密钥
@@ -90,33 +95,86 @@ public:
         return result;
     }
     // 数据签名
-    std::string Sign(std::string_view str) const {
+    std::string Sign(std::string_view str, SignType type) const {
         const int len = RSA_size(_impl_.pri_key_ptr_);
-        char *datas = new char[len] {0};
+        unsigned char *datas = new unsigned char[len] {0};
         unsigned out_len = 0;
-        RSA_sign(
-            NID_sha512,
-            reinterpret_cast<const unsigned char*>(str.data()),
-            str.size(),
-            reinterpret_cast<unsigned char*>(datas),
-            &out_len,
-            _impl_.pri_key_ptr_
-        );
-        std::string result(datas, out_len);
+        switch (type) {
+        case SignType::kSHA256Type:
+            RSA_sign(
+                NID_sha256,
+                reinterpret_cast<const unsigned char*>(str.data()),
+                str.size(),
+                datas,
+                &out_len,
+                _impl_.pri_key_ptr_
+            );
+            break;
+        case SignType::kSHA384Type:
+            RSA_sign(
+                NID_sha384,
+                reinterpret_cast<const unsigned char*>(str.data()),
+                str.size(),
+                datas,
+                &out_len,
+                _impl_.pri_key_ptr_
+            );
+            break;
+        case SignType::kSHA512Type:
+            RSA_sign(
+                NID_sha512,
+                reinterpret_cast<const unsigned char*>(str.data()),
+                str.size(),
+                datas,
+                &out_len,
+                _impl_.pri_key_ptr_
+            );
+            break;
+        default:
+            break;
+        }
+        std::string result(reinterpret_cast<char*>(datas), out_len);
         delete[] datas;
         return result;
     }
     // 验证签名
     bool Verify(std::string_view datas,
-                std::string_view sign_datas) const {
-        return RSA_verify(
-            NID_sha512,
-            reinterpret_cast<const unsigned char*>(datas.data()),
-            datas.size(),
-            reinterpret_cast<const unsigned char*>(sign_datas.data()),
-            sign_datas.size(),
-            _impl_.pub_key_ptr_
-        );
+                std::string_view sign_datas,
+                SignType type) const {
+        bool flag;
+        switch (type) {
+        case SignType::kSHA256Type:
+            flag = RSA_verify(
+                NID_sha256,
+                reinterpret_cast<const unsigned char*>(datas.data()),
+                datas.size(),
+                reinterpret_cast<const unsigned char*>(sign_datas.data()),
+                sign_datas.size(),
+                _impl_.pub_key_ptr_
+            );
+            break;
+        case SignType::kSHA384Type:
+            flag = RSA_verify(
+                NID_sha384,
+                reinterpret_cast<const unsigned char*>(datas.data()),
+                datas.size(),
+                reinterpret_cast<const unsigned char*>(sign_datas.data()),
+                sign_datas.size(),
+                _impl_.pub_key_ptr_
+            );
+            break;
+        case SignType::kSHA512Type:
+            flag = RSA_verify(
+                NID_sha512,
+                reinterpret_cast<const unsigned char*>(datas.data()),
+                datas.size(),
+                reinterpret_cast<const unsigned char*>(sign_datas.data()),
+                sign_datas.size(),
+                _impl_.pub_key_ptr_
+            );
+            break;
+        }
+        return flag;
     }
 private:
     using BIOPtr = std::unique_ptr<BIO, decltype(BIO_free)*>;

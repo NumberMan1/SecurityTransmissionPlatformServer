@@ -3,7 +3,7 @@
 
 #include <string>
 #include <memory>
-#include "Message.pb.h"
+#include "Proto/Message.pb.h"
 
 namespace transmission_msg {
 
@@ -36,14 +36,12 @@ public:
 };
 
 struct RequestInfo
-    : public Info
-{
+    : public Info {
 	std::string sign;
 };
 
 class RequestMsg 
-    : public Msg
-{
+    : public Msg {
 public:
 	// 空对象
 	explicit RequestMsg() = default;
@@ -95,14 +93,12 @@ private:
 };
 
 struct RespondInfo
-    : public Info
-{
+    : public Info {
 	std::int32_t seckey_id;
 };
 
 class RespondMsg 
-    : public Msg
-{
+    : public Msg {
 public:
 	// 空对象
 	RespondMsg() = default;

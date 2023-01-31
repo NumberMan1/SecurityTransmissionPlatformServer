@@ -1,5 +1,6 @@
 /*
 参考https://github.com/OneLoneCoder/Javidx9/blob/master/PixelGameEngine/BiggerProjects/Networking
+进行了一些补充
 */
 #pragma once
 #include <boost/asio.hpp>
@@ -78,7 +79,8 @@ public:
                 [this](std::error_code ec, asio::ip::tcp::endpoint endpoint) {
                     if (!ec) {
                         // ReadHeader();
-
+                        // 设置连接标志
+                        m_connectionFlag.store(true);
                         // 服务器要做的第一件事是发送数据包以进行验证
                         // 所以等待并响应
                         ReadValidation();
@@ -90,12 +92,18 @@ public:
 
     void Disconnect() {
         using namespace boost;
-        if (IsConnected())
+        if (m_socket.is_open())
             asio::post(m_asioService, [this]() { m_socket.close(); });
     }
 
-    bool IsConnected() const {
+    bool IsOpen() const {
+        // async_connect会将socket一直保持为open
+        // 将总是返回true
         return m_socket.is_open();
+    }
+
+    bool IsConnect() const {
+        return m_connectionFlag;
     }
 
     // // 准备连接以等待传入的消息
@@ -340,9 +348,8 @@ protected:
     std::uint64_t m_nHandshakeIn = 0;
     std::uint64_t m_nHandshakeCheck = 0;
 	
-    bool m_bValidHandshake = false;
-	bool m_bConnectionEstablished = false;
-    
+    std::atomic_bool m_connectionFlag = false;
+
     std::uint32_t id = 0;
 
 };

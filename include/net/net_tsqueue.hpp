@@ -1,5 +1,6 @@
 /*
 参考https://github.com/OneLoneCoder/Javidx9/blob/master/PixelGameEngine/BiggerProjects/Networking
+进行了一些补充
 */
 #pragma once
 #include <deque>
