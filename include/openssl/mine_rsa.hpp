@@ -5,7 +5,7 @@
 #include <openssl/pem.h>
 #include <openssl/err.h>
 
-#include "openssl/mine_base64.hpp"
+#include "mine_base64.hpp"
 
 namespace mine_openssl {
 
