@@ -2,7 +2,7 @@
 #include <iostream>
 #include <fstream>
 
-#include "openssl/mine_hash.h"
+#include "openssl/mine_hash.hpp"
 
 platform::Server::Server(std::string server_id, std::uint16_t port)
     : ServerInterface(port),
@@ -76,8 +76,7 @@ bool platform::Server::SeckeyAgree
     msg_out.header.id = TMsgType::kSeckeyAgree;
     // 生成随机字符串, 对称加密的密钥
     std::string aes_key = GetRandStr(AESKeyLen::kLen16);
-    mine_openssl::MyRSA rsa(client_id_pubkey_file_name,
-                            mine_openssl::IsPubkeyPath::kTrue);
+    mine_openssl::MyRSA rsa(client_id_pubkey_file_name);
     // 公钥加密
     std::string aes_seckey = rsa.EncryptPubKey(aes_key);
     // 准备数据

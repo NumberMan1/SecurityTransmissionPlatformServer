@@ -35,10 +35,11 @@ endif()
 message("----------- trying to find Jsoncpp-------------") 
 find_package(jsoncpp CONFIG REQUIRED)
 
-find_library(Jsoncpp_LIBRARY 
-NAMES jsoncpp 
-PATHS ${Jsoncpp_PKGCONF_LIBRARY_DIRS}
-) 
+# find_library(Jsoncpp_LIBRARY 
+# NAMES jsoncpp 
+# PATHS ${Jsoncpp_PKGCONF_LIBRARY_DIRS}
+# ) 
+find_package(spdlog CONFIG REQUIRED)
 
 set(DEP_LIBS
     OpenSSL::Crypto OpenSSL::SSL  # modern
@@ -51,8 +52,8 @@ target_link_libraries(mysrc PUBLIC Threads::Threads)
 target_link_libraries(mysrc PUBLIC ${DEP_LIBS})
 target_link_libraries(mysrc PUBLIC ${Boost_LIBRARIES})
 target_link_libraries(mysrc PUBLIC jsoncpp_object jsoncpp_static JsonCpp::JsonCpp)
-target_link_libraries(mysrc PUBLIC protobuf)
-target_link_libraries(mysrc PUBLIC protoc)
+target_link_libraries(mysrc PUBLIC spdlog::spdlog spdlog::spdlog_header_only)
+target_link_libraries(mysrc PUBLIC protobuf protoc)
 if(MSVC)
     target_compile_options(mysrc PRIVATE /W4 /WX)
 else()

@@ -1,5 +1,5 @@
-﻿#ifndef MINE_HASH_H
-#define MINE_HASH_H
+﻿#ifndef MINE_HASH_HPP
+#define MINE_HASH_HPP
 
 #include <openssl/evp.h>
 
@@ -36,9 +36,11 @@ public:
     }
     /* 添加hash的参数，可以重复添加例如：
      *  hello 
-     *  , world */
-    inline void Update(std::string_view str) noexcept {
-        EVP_DigestUpdate(_impl_.md_ctx_.get(), str.data(), str.size());
+     *  , world 
+     * 需要类似stl的接口: data(), size()*/
+    template<typename T>
+    inline void Update(const T &datas) noexcept {
+        EVP_DigestUpdate(_impl_.md_ctx_.get(), datas.data(), datas.size());
     }
     // 返回计算结果, 使用后该结构体将重置为初始状态
     inline std::string Final() noexcept {
@@ -57,7 +59,7 @@ public:
             // }
             // std::string result_str(result_arr.data(), length * 2 + 1);
             FinalImpl<len::kSHA256Len>(result_str);
-            return result_str;
+            break;
         }
         case type::kSHA384Type: {
             // std::array<unsigned char, len::kSHA384Len> datas{0};
@@ -69,7 +71,7 @@ public:
             // }
             // std::string result_str(result_arr.data(), length * 2 + 1);
             FinalImpl<len::kSHA384Len>(result_str);
-            return result_str;
+            break;
         }
         case type::kSHA512Type: {
             // std::array<unsigned char, len::kSHA512Len> datas{0};
@@ -81,9 +83,12 @@ public:
             // }
             // std::string result_str(result_arr.data(), length * 2 + 1);
             FinalImpl<len::kSHA512Len>(result_str);
-            return result_str;
+            break;
         }
+        default:
+            break;
         }
+        return result_str;
     }
 
 private:
@@ -145,4 +150,4 @@ private:
 
 } // ! namespace mine_openssl
 
-#endif // ! MINE_HASH_H
+#endif // ! MINE_HASH_HPP
