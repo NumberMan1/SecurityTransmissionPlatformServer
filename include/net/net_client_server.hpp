@@ -57,7 +57,7 @@ public:
 
         // 无论如何，我们也完成了asio io_service…		
         m_service.stop();
-        // if (thrIOService.joinable()) thrIOService.join();
+        if (thrIOService.joinable()) thrIOService.join();
 
         // 销毁连接对象
         auto useless_connection_ptr = m_connection.release();
@@ -149,7 +149,7 @@ public:
         m_asioService.stop();
 
         // 整理io_service线程
-        // if (m_threadIOService.joinable()) m_threadIOService.join();
+        if (m_threadIOService.joinable()) m_threadIOService.join();
 
         std::cout << "[SERVER] 停止!\n";
     }
