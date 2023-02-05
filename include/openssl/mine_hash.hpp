@@ -2,7 +2,7 @@
 #define MINE_HASH_HPP
 
 #include <openssl/evp.h>
-
+#include <openssl/sha.h>
 #include <variant>
 #include <string_view>
 #include <vector>

@@ -56,7 +56,7 @@ private:
                           const std::string_view &data,
                           const std::string_view &sign_data) {
         mine_openssl::MyRSA rsa(pubkey_file_name);
-        return rsa.Verify(data, sign_data, mine_openssl::MyRSA::SignType::kSHA512Type);
+        return rsa.Verify(data, sign_data, mine_openssl::MyRSA::SignType::kSHA384Type);
     }
     bool SeckeyAgree(std::shared_ptr<mine_net::Connection<TMsgType>> client,
                      mine_net::Message<TMsgType> &msg);

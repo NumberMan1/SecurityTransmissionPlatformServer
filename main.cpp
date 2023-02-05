@@ -47,11 +47,11 @@ int main(int argc, char *argv[]) {
         // );
         // io_service.run();
         
-        // platform::Server server(server_id, port);
-        // server.Start();
-        // while (true) {
-        //     server.Update();
-        // }
+        platform::Server server(server_id, port);
+        server.Start();
+        while (true) {
+            server.Update(1);
+        }
     } catch (std::exception &err) {
         std::cerr << "错误为:" << err.what() << std::endl;
     }

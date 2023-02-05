@@ -63,7 +63,7 @@ bool platform::Server::SeckeyAgree
     std::ofstream file_out(client_id_pubkey_file_name);
     file_out << request_info->data;
     // 验证签名
-    mine_openssl::Hash h(mine_openssl::HashType::kSHA512Type);
+    mine_openssl::Hash h(mine_openssl::HashType::kSHA384Type);
     h.Update(request_info->data);
     if (!CheckSign(client_id_pubkey_file_name,
             h.Final(), request_info->sign)) {

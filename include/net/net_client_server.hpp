@@ -39,7 +39,7 @@ public:
             m_connection->ConnectToServer(endpoints);
 
             // 启动io_service线程
-            thrIOService = std::thread([this]() { m_service.run(); });
+            thrIOService = std::jthread([this]() { m_service.run(); });
         } catch (std::exception& e) {
             std::cerr << "客户端异常: " << e.what() << "\n";
             return false;
@@ -57,8 +57,7 @@ public:
 
         // 无论如何，我们也完成了asio io_service…		
         m_service.stop();
-        if (thrIOService.joinable())
-            thrIOService.join();
+        // if (thrIOService.joinable()) thrIOService.join();
 
         // 销毁连接对象
         auto useless_connection_ptr = m_connection.release();
@@ -98,7 +97,7 @@ protected:
     // asio io_service处理数据传输…
     boost::asio::io_service m_service;
     // …但是需要一个自己的线程来执行它的工作命令
-    std::thread thrIOService;
+    std::jthread thrIOService;
     // Client有一个“Connection”对象的实例，用于处理数据传输
     std::unique_ptr<Connection<T>> m_connection = nullptr;
     
@@ -133,7 +132,7 @@ public:
             WaitForClientConnection();
 
             // 在自己的线程中启动asio io_service
-            m_threadIOService = std::thread([this]() { m_asioService.run(); });
+            m_threadIOService = std::jthread([this]() { m_asioService.run(); });
         } catch (std::exception& e) {
             // 某些东西禁止服务器监听
             std::cerr << "[SERVER] 异常: " << e.what() << "\n";
@@ -150,7 +149,7 @@ public:
         m_asioService.stop();
 
         // 整理io_service线程
-        if (m_threadIOService.joinable()) m_threadIOService.join();
+        // if (m_threadIOService.joinable()) m_threadIOService.join();
 
         std::cout << "[SERVER] 停止!\n";
     }
@@ -293,7 +292,7 @@ protected:
 
     // 声明的顺序很重要——它也是初始化的顺序
     boost::asio::io_service m_asioService;
-    std::thread m_threadIOService;
+    std::jthread m_threadIOService;
 
     // 处理新的连接尝试…
     boost::asio::ip::tcp::acceptor m_asioAcceptor;
