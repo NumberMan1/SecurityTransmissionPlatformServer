@@ -79,6 +79,7 @@
         "coroutine": "cpp",
         "set": "cpp",
         "iomanip": "cpp",
-        "cfenv": "cpp"
+        "cfenv": "cpp",
+        "charconv": "cpp"
     }
 }

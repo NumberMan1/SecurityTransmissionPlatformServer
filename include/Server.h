@@ -59,15 +59,20 @@ private:
         mine_openssl::MyRSA rsa(pubkey_file_name);
         return rsa.Verify(data, sign_data, mine_openssl::MyRSA::SignType::kSHA384Type);
     }
+    // 密钥协商
     bool SeckeyAgree(std::shared_ptr<mine_net::Connection<TMsgType>> client,
                      mine_net::Message<TMsgType> &msg);
+    // 密钥效验
     bool SeckeyVerify(std::shared_ptr<mine_net::Connection<TMsgType>> client,
                       mine_net::Message<TMsgType> &msg);
+    // 密钥注销
     bool SeckeyLogout(std::shared_ptr<mine_net::Connection<TMsgType>> client,
                       mine_net::Message<TMsgType> &msg);
+    // 用于线程池的工作函数
     void Work(std::shared_ptr<mine_net::Connection<TMsgType>> client,
               mine_net::Message<TMsgType> &msg);
-    std::string GetRandStr(AESKeyLen len);
+    // 生成AES的密钥
+    std::string GetAESRandStr(AESKeyLen len);
 
     boost::asio::thread_pool thread_pool_ {4};
     std::string server_id_;

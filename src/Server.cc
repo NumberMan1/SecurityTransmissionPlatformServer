@@ -2,29 +2,15 @@
 #include <iostream>
 #include <fstream>
 #include <random>
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/basic_file_sink.h>
 
 #include "openssl/mine_hash.hpp"
 
 platform::Server::Server(std::string server_id, std::uint16_t port)
     : ServerInterface(port),
       server_id_(server_id) {
-    // 设置工作路径，初始化环境
-    std::error_code err;
-    if (!std::filesystem::exists("for_server", err)) {
-        std::filesystem::create_directory("for_server", err);
-    }
-    std::filesystem::current_path("for_server", err);
-    if (!std::filesystem::exists("seckey", err)) {
-        std::filesystem::create_directory("seckey", err);
-    }
-    // 只要一个密钥不存在就重新生成
-    if (!std::filesystem::exists("server_pubkey.pem")) {
-        mine_openssl::MyRSA rsa(1);
-        rsa.SaveRSAKey("server_pubkey.pem", "server_prikey.pem");
-    }
-    if (err) {
-        std::cout << err.message() << "\n";
-    }
+
 }
 
 // bool platform::Server::CheckSign(const std::string_view &pubkey_file_name,
@@ -69,7 +55,9 @@ bool platform::Server::SeckeyAgree
     h.Update(request_info->data);
     if (!CheckSign(client_id_pubkey_file_name,
             h.Final(), request_info->sign)) {
-        std::cout << "签名校验失败" << '\n';
+        spdlog::warn("签名校验失败");
+        auto logger = spdlog::basic_logger_mt("SeckeyAgree logger", "log/server");
+        logger->warn("签名校验失败");
         std::filesystem::remove(client_id_pubkey_file_name);
         return false;
     }
@@ -77,7 +65,7 @@ bool platform::Server::SeckeyAgree
     mine_net::Message<TMsgType> msg_out;
     msg_out.header.id = TMsgType::kSeckeyAgree;
     // 生成随机字符串, 对称加密的密钥
-    std::string aes_key = GetRandStr(AESKeyLen::kLen16);
+    std::string aes_key = GetAESRandStr(AESKeyLen::kLen16);
     mine_openssl::MyRSA rsa(client_id_pubkey_file_name);
     // 公钥加密
     std::string aes_seckey = rsa.EncryptPubKey(aes_key);
@@ -153,7 +141,7 @@ void platform::Server::Work(std::shared_ptr<mine_net::Connection<TMsgType>> clie
     }
 }
 
-std::string platform::Server::GetRandStr(AESKeyLen len) {
+std::string platform::Server::GetAESRandStr(AESKeyLen len) {
     // 以当前时间为种子
     std::default_random_engine random_engine(std::time(nullptr));
     std::uniform_int_distribution<unsigned> unsigned_distribution;
