@@ -1,6 +1,7 @@
 #include "Server.h"
 #include <iostream>
 #include <fstream>
+#include <random>
 
 #include "openssl/mine_hash.hpp"
 
@@ -46,7 +47,7 @@ bool platform::Server::SeckeyAgree
     }
     // // 由于Message是后入先出，需要修正消息
     // std::reverse(net_str.begin(), net_str.end());
-    std::cout << net_str << '\n';
+    // std::cout << net_str << '\n';
     using TInfo = transmission_msg::proto::Info;
     using TRTInfo = transmission_msg::proto::RequestInfo;
     using TRPInfo = transmission_msg::proto::RespondInfo;
@@ -62,6 +63,7 @@ bool platform::Server::SeckeyAgree
     // 写入磁盘
     std::ofstream file_out(client_id_pubkey_file_name);
     file_out << request_info->data;
+    file_out.close();
     // 验证签名
     mine_openssl::Hash h(mine_openssl::HashType::kSHA384Type);
     h.Update(request_info->data);
@@ -96,7 +98,8 @@ bool platform::Server::SeckeyAgree
         // msg_out << c;
         msg_out << respond_str.at(i);
     }
-    std::cout << respond_str << "\n";
+    std::cout << "aes : " << aes_key << "\n";
+    // std::cout << respond_str << "\n";
     // 发送
     client->Send(msg_out);
     // for (std::size_t i = 0; i != net_str.size(); ++i) {
@@ -151,23 +154,25 @@ void platform::Server::Work(std::shared_ptr<mine_net::Connection<TMsgType>> clie
 }
 
 std::string platform::Server::GetRandStr(AESKeyLen len) {
-    srand(time(nullptr));	// 以当前时间为种子
+    // 以当前时间为种子
+    std::default_random_engine random_engine(std::time(nullptr));
+    std::uniform_int_distribution<unsigned> unsigned_distribution;
     std::string retStr;
-    char* buf = "~`@#$%^&*()_+=-{}[];':";
+    std::string_view buf = "~`@#$%^&*()_+=-{}[];':"; // 特殊字符集
     for (std::int8_t i = 0; i < len; ++i) {
-        std::int8_t flag = rand() % 4;
+        std::int8_t flag = std::rand() % 4;
         switch (flag) {
         case 0:	// 0-9
-            retStr.append(1, rand() % 10 + '0');
+            retStr.append(1, unsigned_distribution(random_engine) % 10 + '0');
             break;
         case 1:	// a-z
-            retStr.append(1, rand() % 26 + 'a');
+            retStr.append(1, unsigned_distribution(random_engine) % 26 + 'a');
             break;
         case 2:	// A-Z
-            retStr.append(1, rand() % 26 + 'A');
+            retStr.append(1, unsigned_distribution(random_engine) % 26 + 'A');
             break;
         case 3:	// 特殊字符
-            retStr.append(1, buf[rand() % strlen(buf)]);
+            retStr.append(1, buf[unsigned_distribution(random_engine) % buf.size()]);
             break;
         }
     }

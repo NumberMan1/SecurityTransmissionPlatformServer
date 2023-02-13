@@ -242,11 +242,11 @@ public:
     }
 
     // 强制服务器响应传入的消息
-    void Update(size_t nMaxMessages = -1, bool bWait = false) {
+    void Update(std::size_t nMaxMessages = -1, bool bWait = false) {
         if (bWait) m_qMessagesIn.wait();
 
         // 根据指定的值处理尽可能多的消息
-        size_t nMessageCount = 0;
+        std::size_t nMessageCount = 0;
         while (nMessageCount < nMaxMessages && !m_qMessagesIn.empty()) {
             auto msg = m_qMessagesIn.pop_front();
 
