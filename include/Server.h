@@ -52,6 +52,7 @@ protected:
         );
     }
 private:
+    // 验证签名
     inline bool CheckSign(const std::string_view &pubkey_file_name,
                           const std::string_view &data,
                           const std::string_view &sign_data) {

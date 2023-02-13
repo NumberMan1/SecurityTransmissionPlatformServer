@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.2)
 
-SET(CMAKE_TOOLCHAIN_FILE "/home/number/vcpkg/vcpkg/scripts/buildsystems/vcpkg.cmake")
+SET(CMAKE_TOOLCHAIN_FILE "~/vcpkg/vcpkg/scripts/buildsystems/vcpkg.cmake")
 
 project(SecurityTransmissionPlatformServer VERSION 1.0 LANGUAGES CXX)
 
