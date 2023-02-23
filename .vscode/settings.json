@@ -81,5 +81,20 @@
         "iomanip": "cpp",
         "cfenv": "cpp",
         "charconv": "cpp"
-    }
+    },
+    "sqltools.connections": [
+        {
+            "mysqlOptions": {
+                "authProtocol": "default"
+            },
+            "previewLimit": 50,
+            "server": "192.168.31.214",
+            "port": 3306,
+            "driver": "MySQL",
+            "name": "for_text",
+            "database": "db_student",
+            "username": "number",
+            "password": "123456"
+        }
+    ]
 }

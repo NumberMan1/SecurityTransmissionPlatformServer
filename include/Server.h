@@ -3,6 +3,7 @@
 
 #include <string>
 #include <filesystem>
+#include <tuple>
 #include <boost/asio/thread_pool.hpp>
 
 #include "factory.h"
@@ -73,6 +74,8 @@ private:
               mine_net::Message<TMsgType> &msg);
     // 生成AES的密钥
     std::string GetAESRandStr(AESKeyLen len);
+    // 返回tuple, 属性1为消息的指针，属性2为用户公钥名称
+    auto ParseMsgImpl(mine_net::Message<TMsgType> &msg);
 
     boost::asio::thread_pool thread_pool_ {4};
     std::string server_id_;

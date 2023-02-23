@@ -6,6 +6,27 @@
 #include <spdlog/sinks/basic_file_sink.h>
 
 #include "openssl/mine_hash.hpp"
+#include "seckey_shm.hpp"
+
+inline namespace {
+
+using TInfo = transmission_msg::proto::Info;
+using TRTInfo = transmission_msg::proto::RequestInfo;
+using TRPInfo = transmission_msg::proto::RespondInfo;
+using TFactory = transmission_msg::proto::factory::Factory;
+using TRTFactory = transmission_msg::proto::factory::RequestFactory;
+using TRPFactory = transmission_msg::proto::factory::RespondFactory;
+
+constexpr std::size_t kSeckeyLen = 128;
+
+struct SeckeyInfo {
+    std::string cline_id;
+    std::string server_id;
+    std::array<char, kSeckeyLen> seckey;
+    bool status;
+};
+
+} // namespace ::
 
 platform::Server::Server(std::string server_id, std::uint16_t port)
     : ServerInterface(port),
@@ -20,9 +41,7 @@ platform::Server::Server(std::string server_id, std::uint16_t port)
 //     return rsa.Verify(data, sign_data);
 // }
 
-bool platform::Server::SeckeyAgree
-    (std::shared_ptr<mine_net::Connection<TMsgType>> client,
-     mine_net::Message<TMsgType> &msg) {
+auto platform::Server::ParseMsgImpl(mine_net::Message<TMsgType> &msg) {
     // 进行提取
     std::size_t net_msg_len = msg.Size();
     std::string net_str;
@@ -31,22 +50,48 @@ bool platform::Server::SeckeyAgree
         msg >> c;
         net_str += c;
     }
-    // // 由于Message是后入先出，需要修正消息
-    // std::reverse(net_str.begin(), net_str.end());
-    // std::cout << net_str << '\n';
-    using TInfo = transmission_msg::proto::Info;
-    using TRTInfo = transmission_msg::proto::RequestInfo;
-    using TRPInfo = transmission_msg::proto::RespondInfo;
-    using TFactory = transmission_msg::proto::factory::Factory;
-    using TRTFactory = transmission_msg::proto::factory::RequestFactory;
-    using TRPFactory = transmission_msg::proto::factory::RespondFactory;
     TRTFactory requset_factory {net_str};
     auto request_msg = requset_factory.CreateMsg();
-    auto request_info = request_msg->DecodeMsg();
+    auto request_info = request_msg->DecodeMsg();    
     std::string client_id_pubkey_file_name = request_info->client_id;
     client_id_pubkey_file_name += "_pubkey.pem";
     client_id_pubkey_file_name.insert(0, "seckey/", 0, std::strlen("seckey/"));
+    return std::make_tuple(request_info, client_id_pubkey_file_name);
+}
+
+bool platform::Server::SeckeyAgree
+    (std::shared_ptr<mine_net::Connection<TMsgType>> client,
+     mine_net::Message<TMsgType> &msg) {
+    // 进行提取
+    // std::size_t net_msg_len = msg.Size();
+    // std::string net_str;
+    // for (std::size_t i = 0; i != net_msg_len; ++i) {
+    //     char c;
+    //     msg >> c;
+    //     net_str += c;
+    // }
+    // using TInfo = transmission_msg::proto::Info;
+    // using TRTInfo = transmission_msg::proto::RequestInfo;
+    // using TRPInfo = transmission_msg::proto::RespondInfo;
+    // using TFactory = transmission_msg::proto::factory::Factory;
+    // using TRTFactory = transmission_msg::proto::factory::RequestFactory;
+    // using TRPFactory = transmission_msg::proto::factory::RespondFactory;
+    auto request_tuple = ParseMsgImpl(msg);
+    auto request_info = std::get<0>(request_tuple);
+    auto client_id_pubkey_file_name = std::get<1>(request_tuple);
+    // TRTFactory requset_factory {net_str};
+    // auto request_msg = requset_factory.CreateMsg();
+    // auto request_info = request_msg->DecodeMsg();
+    // std::string client_id_pubkey_file_name = request_info->client_id;
+    // client_id_pubkey_file_name += "_pubkey.pem";
+    // client_id_pubkey_file_name.insert(0, "seckey/", 0, std::strlen("seckey/"));
     // 写入磁盘
+    if (std::filesystem::exists(client_id_pubkey_file_name)) {
+        spdlog::warn("签名校验失败");
+        auto logger = spdlog::basic_logger_mt("SeckeyAgree logger", "log/server");
+        logger->warn("签名校验失败, 已经有同名密钥");
+        return false;
+    }
     std::ofstream file_out(client_id_pubkey_file_name);
     file_out << request_info->data;
     file_out.close();
@@ -66,6 +111,10 @@ bool platform::Server::SeckeyAgree
     msg_out.header.id = TMsgType::kSeckeyAgree;
     // 生成随机字符串, 对称加密的密钥
     std::string aes_key = GetAESRandStr(AESKeyLen::kLen16);
+    // 写入共享内存
+
+
+
     mine_openssl::MyRSA rsa(client_id_pubkey_file_name);
     // 公钥加密
     std::string aes_seckey = rsa.EncryptPubKey(aes_key);
@@ -81,31 +130,32 @@ bool platform::Server::SeckeyAgree
     TRPFactory respond_factory {&respond_info};
     auto respond_msg = respond_factory.CreateMsg();
     std::string respond_str(respond_msg->EncodeMsg());
+    // 由于msg是类似于stack后入先出，需要先反向存入数据
     for (auto i = std::ssize(respond_str) - 1; i != -1; --i) {
-        // char c = respond_str.at(i);
-        // msg_out << c;
         msg_out << respond_str.at(i);
     }
     std::cout << "aes : " << aes_key << "\n";
     // std::cout << respond_str << "\n";
     // 发送
     client->Send(msg_out);
-    // for (std::size_t i = 0; i != net_str.size(); ++i) {
-    //     msg << net_str.at(i);
-    // }
-    // client->Send(msg);
     return true;
 }
 
 bool platform::Server::SeckeyVerify
     (std::shared_ptr<mine_net::Connection<TMsgType>> client,
      mine_net::Message<TMsgType> &msg) {
+    auto request_tuple = ParseMsgImpl(msg);
+    auto request_info = std::get<0>(request_tuple);
+    auto client_id_pubkey_file_name = std::get<1>(request_tuple);
     return true;
 }
 
 bool platform::Server::SeckeyLogout
     (std::shared_ptr<mine_net::Connection<TMsgType>> client,
      mine_net::Message<TMsgType> &msg) {
+    auto request_tuple = ParseMsgImpl(msg);
+    auto request_info = std::get<0>(request_tuple);
+    auto client_id_pubkey_file_name = std::get<1>(request_tuple);
     return true;
 }
 
