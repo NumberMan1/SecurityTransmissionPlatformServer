@@ -28,7 +28,7 @@
                 }
             ],
             "preLaunchTask": "Build",
-            "visualizerFile": "/home/number/.config/Code/User/workspaceStorage/15e2f5309eb97373e2b1971fe1758a44/tonka3000.qtvsctools/qt.natvis.xml"
+            // "visualizerFile": "/home/number/.config/Code/User/workspaceStorage/15e2f5309eb97373e2b1971fe1758a44/tonka3000.qtvsctools/qt.natvis.xml"
         }
     ]
 }
