@@ -1,4 +1,4 @@
-﻿#ifndef MINE_RSA_HPP
+#ifndef MINE_RSA_HPP
 #define MINE_RSA_HPP
 
 #include <openssl/rsa.h>
@@ -82,7 +82,7 @@ public:
     // 需要stl类似的接口: data(), size()
     // 失败抛出std::runtime_error
     template<typename T>
-    inline std::string EncryptPubKey(const T &datas, bool to_base64 = true) const {
+    std::string EncryptPubKey(const T &datas, bool to_base64 = true) const {
         const int len = RSA_size(_impl_.pub_key_ptr_);
         int flag;
         // char *temp = new char[len] {0};
@@ -110,7 +110,7 @@ public:
     // 需要stl类似的接口: data(), size()
     // 失败抛出std::runtime_error
     template<typename T>
-    inline std::string DecryptPriKey(const T &datas, bool from_base64 = true) const {
+    std::string DecryptPriKey(const T &datas, bool from_base64 = true) const {
         if (only_pubkey_) {
             throw std::runtime_error("只有公钥");
         }

@@ -1,0 +1,6 @@
+{
+    "user": "number",
+    "password": "123456",
+    "hostname": "192.168.31.214",
+    "schema": "db_seckey"
+}

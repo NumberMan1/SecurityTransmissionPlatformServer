@@ -1,4 +1,4 @@
-﻿#ifndef MINE_HASH_HPP
+#ifndef MINE_HASH_HPP
 #define MINE_HASH_HPP
 
 #include <openssl/evp.h>
@@ -140,7 +140,7 @@ private:
         }
         std::array<char, len * 2 + 1> result_arr{0};
         for (unsigned i = 0; i != l; ++i) {
-            sprintf(&result_arr[i * 2], "%02x", datas[i]);
+            std::sprintf(&result_arr[i * 2], "%02x", datas[i]);
         }
         s.append(result_arr.data(), l * 2 + 1);
     }

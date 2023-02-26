@@ -7,8 +7,7 @@
 #include <spdlog/sinks/daily_file_sink.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <chrono>
-#include <mysqlx/xdevapi.h>
-// #include <QSqlDatabase>
+#include "mysql_seckey.h"
 
 #include "seckey_shm.hpp"
 // #include <boost/interprocess/shared_memory_object.hpp>
@@ -16,14 +15,13 @@
 
 int main(int argc, char *argv[]) {
     using namespace boost::asio;
-    std::ifstream in {"for_server/server.json"};
-    Json::Reader reader {};
-    Json::Value root {};
-    reader.parse(in, root);
+    std::ifstream is{"for_server/server.json"};
+    Json::Value root{};
+    is >> root;
     std::string server_id = root["server_id"].asString();
     std::uint16_t port = root["port"].asUInt();
+    is.close();
     constexpr char* url{"mysqlx://number:123456@192.168.31.214"};
-    // // constexpr char* uri{"mysqlx://user:pwd@host:port/db?ssl-mode=disabled"};
     try {
         mysqlx::Session sess(url);
         // mysqlx::Session sess("192.168.31.214", 33060, "number", "123456");
@@ -31,8 +29,11 @@ int main(int argc, char *argv[]) {
         //     , mysqlx::ClientOption::POOL_MAX_SIZE, 7);
         // mysqlx::Session sess = client.getSession();
         // std::cout << sess.getDefaultSchemaName() << "\n";
+
         mysqlx::Schema sch = sess.getSchema("db_student");
-        mysqlx::Table table = sch.getTable("t_course");
+        mysqlx::Table table = sch.getTable("t_user");
+        // mysqlx::TableInsert insert = table.insert("N_USER_ID", "VC_LOGIN_NAME", "VC_PASSWORD");insert.values(4, "44", "444");
+        // insert.execute();
         mysqlx::TableSelect select = table.select("*");
         mysqlx::RowResult row = select.execute();
         std::list<mysqlx::Row> row_list = row.fetchAll();
@@ -40,6 +41,7 @@ int main(int argc, char *argv[]) {
             std::cout << r[0] << " " << r[1] << "\n";
         }
         // client.close();
+        sess.close();
         // QSqlDataBase d;
     } catch (std::exception &err) {
         std::cout << err.what() << std::endl;
