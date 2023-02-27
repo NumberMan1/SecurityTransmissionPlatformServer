@@ -1,4 +1,4 @@
-#include "mysql_seckey.h"
+#include "mysql_seckey.hpp"
 #include <json/json.h>
 #include <fstream>
 #include <iostream>
@@ -19,18 +19,27 @@ SeckeyMysql::SeckeyMysql(std::string_view json_file) {
 
 SeckeyMysql::SeckeyMysql(const DBInfo &db_info)
     : schema_name_{db_info.data_base} {
-    url_.append(db_info.user_name + ':' + db_info.password + '@' + db_info.host_name);
+    url_.append(db_info.user_name + ':' + db_info.password
+                + '@' + db_info.host_name);
 }
 
 std::list<mysqlx::Row> SeckeyMysql::Select(std::string_view table_name) {
-    auto table = InitTableImpl(table_name);
+    mysqlx::Session sess{url_};
+    auto table = sess.getSchema(schema_name_).getTable(table_name.data());
     mysqlx::TableSelect table_select = table.select("*");
     mysqlx::RowResult row_result = table_select.execute();
     return row_result.fetchAll();
 }
 
-void SeckeyMysql::Insert(std::string_view table_name) {
-    auto table = InitTableImpl(table_name);
-    mysqlx::TableInsert table_insert = table.insert();
-
+std::list<mysqlx::Row> SeckeyMysql::Select(TableName table_name) {
+    mysqlx::Session sess{url_};
+    auto table = InitTableImpl(table_name, sess);
+    mysqlx::TableSelect table_select = table.select("*");
+    mysqlx::RowResult row_result = table_select.execute();
+    return row_result.fetchAll();
 }
+// void SeckeyMysql::Insert(std::string_view table_name) {
+//     auto table = InitTableImpl(table_name);
+//     mysqlx::TableInsert table_insert = table.insert();
+
+// }

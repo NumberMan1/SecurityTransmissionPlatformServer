@@ -3,7 +3,7 @@
 
 #include <array>
 
-namespace transmission_msg {
+namespace platform {
 
 struct NodeSeckey {
     int status{0};      // 秘钥状态: 1可用, 0:不可用
