@@ -22,7 +22,7 @@ public:
     }
     // 通过名字创建共享内存
     explicit BaseShm(std::string_view name, boost::interprocess::offset_t length)
-        : shm_{boost::interprocess::open_or_create, name.data(), 
+        : shm_{boost::interprocess::create_only, name.data(), 
                boost::interprocess::read_write} {
         shm_.truncate(length);
         boost::interprocess::mapped_region temp{shm_, boost::interprocess::read_write};
