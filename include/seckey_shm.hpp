@@ -24,14 +24,6 @@ public:
     }
     // T需要支持==
     T* Find(const T target) const {
-        // T* temp = static_cast<T*>(GetAddress());
-        // std::size_t len = Size();
-        // for (T* end = static_cast<T*>(GetAddress()) + len;
-        //      temp != end; ++temp) {
-        //     if (*temp == target) {
-        //         return temp;
-        //     }
-        // }
         std::array<T, max_node_num> *arr = 
             static_cast<std::array<T, max_node_num>*>(GetAddress());
         for (std::size_t i = 0; i != num_node_; ++i) {
@@ -43,14 +35,6 @@ public:
     }
     template<typename Handle>
     T* Find(const T target, Handle h) const {
-        // T* temp = static_cast<T*>(GetAddress());
-        // std::size_t len = Size();
-        // for (T* end = static_cast<T*>(GetAddress()) + len;
-        //      temp != end; ++temp) {
-        //     if (h(*temp, target)) {
-        //         return temp;
-        //     }
-        // }
         std::array<T, max_node_num> *arr = 
             static_cast<std::array<T, max_node_num>*>(GetAddress());
         for (std::size_t i = 0; i != num_node_; ++i) {
@@ -61,11 +45,6 @@ public:
         return nullptr;
     }
     bool Write(const T target) {
-        // std::size_t len_before = Size();
-        // Truncate(sizeof(T));
-        // T* temp = GetAddress();
-        // temp += len_before;
-        // *temp = target;
         std::array<T, max_node_num> *arr = 
             static_cast<std::array<T, max_node_num>*>(GetAddress());
         if (num_node_ != max_node_num) {
