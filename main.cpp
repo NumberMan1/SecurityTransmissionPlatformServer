@@ -19,32 +19,6 @@ int main(int argc, char *argv[]) {
     std::string server_id = root["server_id"].asString();
     std::uint16_t port = root["port"].asUInt();
     is.close();
-    // using namespace boost::interprocess;
-    // int fd = fork();
-    // if (fd == 0) {
-    //     using namespace std::chrono_literals;
-    //     std::this_thread::sleep_for(2s);
-    //     shared_memory_object sm{open_only, "text_shared", read_only};
-    //     mapped_region mapped_r(sm, read_only);
-    //     std::cout << "address : " << mapped_r.get_address() << "\n";
-    //     std::cout << "size : " << mapped_r.get_size() << "\n";
-    //     std::string *result = static_cast<std::string*>(mapped_r.get_address());
-    //     std::cout << "sm has " << *result << std::endl;
-    //     std::cout << shared_memory_object::remove("text_shared");
-    //     return 0;
-    // } else {
-    //     shared_memory_object::remove("text");
-    //     shared_memory_object::remove("text_shared");
-    //     shared_memory_object sm{create_only, "text_shared", read_write};
-    //     sm.truncate(1024);
-    //     mapped_region mapped_r(sm, read_write);
-    //     std::cout << "address : " << mapped_r.get_address() << "\n";
-    //     std::cout << "size : " << mapped_r.get_size() << "\n";
-    //     std::string *result = static_cast<std::string*>(mapped_r.get_address());
-    //     *result = "hello";
-    //     std::cout << "sm has " << *result << std::endl;
-    //     return 0;
-    // }
     try {
         std::cout << "服务器:" << server_id << "启动\n"
                   << "端口为:" << port << "\n";
