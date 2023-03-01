@@ -17,17 +17,21 @@ public:
         : shm_{boost::interprocess::open_only, name.data(),
                boost::interprocess::read_write},
           shm_map_{shm_, boost::interprocess::read_write} {
-
+        // boost::interprocess::mapped_region temp{shm_, boost::interprocess::read_write};
+        // shm_map_.swap(temp);
     }
     // 通过名字创建共享内存
     explicit BaseShm(std::string_view name, boost::interprocess::offset_t length)
-        : shm_{boost::interprocess::create_only, name.data(), 
-               boost::interprocess::read_write},
-          shm_map_{shm_, boost::interprocess::read_write} {
+        : shm_{boost::interprocess::open_or_create, name.data(), 
+               boost::interprocess::read_write} {
         shm_.truncate(length);
+        boost::interprocess::mapped_region temp{shm_, boost::interprocess::read_write};
+        shm_map_.swap(temp);
         std::memset(shm_map_.get_address(), 0, length);
     }
-    virtual ~BaseShm() = default;
+    virtual ~BaseShm() {
+        boost::interprocess::shared_memory_object::remove(shm_.get_name());
+    }
     // 扩建
     inline void Truncate(boost::interprocess::offset_t length) {
         shm_.truncate(shm_map_.get_size() + length);

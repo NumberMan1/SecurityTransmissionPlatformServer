@@ -10,8 +10,6 @@
 #include "mysql_seckey.hpp"
 
 #include "seckey_shm.hpp"
-// #include <boost/interprocess/shared_memory_object.hpp>
-// #include <boost/interprocess/mapped_region.hpp>
 
 int main(int argc, char *argv[]) {
     using namespace boost::asio;
@@ -21,32 +19,6 @@ int main(int argc, char *argv[]) {
     std::string server_id = root["server_id"].asString();
     std::uint16_t port = root["port"].asUInt();
     is.close();
-    // constexpr char* url{"mysqlx://number:123456@192.168.31.214"};
-    // try {
-    //     mysqlx::Session sess(url);
-    //     // mysqlx::Session sess("192.168.31.214", 33060, "number", "123456");
-    //     // mysqlx::Client client("root:123@127.0.0.1"
-    //     //     , mysqlx::ClientOption::POOL_MAX_SIZE, 7);
-    //     // mysqlx::Session sess = client.getSession();
-    //     // std::cout << sess.getDefaultSchemaName() << "\n";
-    //     mysqlx::Schema sch = sess.getSchema("db_student");
-    //     mysqlx::Table table = sch.getTable("t_user");
-    //     mysqlx::TableInsert insert = table.insert("N_USER_ID", "VC_LOGIN_NAME", "VC_PASSWORD");
-    //     insert.values(4, "44", std::string("444"));
-    //     insert.execute();
-    //     mysqlx::TableSelect select = table.select("*");
-    //     mysqlx::RowResult row = select.execute();
-    //     std::list<mysqlx::Row> row_list = row.fetchAll();
-    //     for (auto r : row_list) {
-    //         std::cout << r[0] << " " << r[1] << "\n";
-    //     }
-    //     // client.close();
-    //     sess.close();
-    //     // QSqlDataBase d;
-    // } catch (std::exception &err) {
-    //     std::cout << err.what() << std::endl;
-    //     return 0;
-    // }
     // using namespace boost::interprocess;
     // int fd = fork();
     // if (fd == 0) {
@@ -102,6 +74,10 @@ int main(int argc, char *argv[]) {
         auto logger = spdlog::daily_logger_mt("int main logger", "log/int_main");
         logger->error(err.what());
         // std::cerr << "错误为:" << err.what() << std::endl;
+    } catch (...) {
+        spdlog::error("未知的错误");
+        auto logger = spdlog::daily_logger_mt("int main logger", "log/int_main");
+        logger->error("未知的错误");
     }
     return 0;
 }

@@ -37,7 +37,7 @@ constexpr RespondMsg::RespondMsg(
   : client_id_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
   , server_id_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
   , data_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
-  , seckey_id_(0){}
+  , seckey_id_(0u){}
 struct RespondMsgDefaultTypeInternal {
   constexpr RespondMsgDefaultTypeInternal()
     : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -88,7 +88,7 @@ const char descriptor_table_protodef_Message_2eproto[] PROTOBUF_SECTION_VARIABLE
   "\n\rMessage.proto\022\nproto_info\"N\n\nRequestMs"
   "g\022\021\n\tclient_id\030\001 \001(\014\022\021\n\tserver_id\030\002 \001(\014\022"
   "\014\n\004sign\030\003 \001(\014\022\014\n\004data\030\004 \001(\014\"S\n\nRespondMs"
-  "g\022\021\n\tseckey_id\030\001 \001(\005\022\021\n\tclient_id\030\002 \001(\014\022"
+  "g\022\021\n\tseckey_id\030\001 \001(\r\022\021\n\tclient_id\030\002 \001(\014\022"
   "\021\n\tserver_id\030\003 \001(\014\022\014\n\004data\030\004 \001(\014b\006proto3"
   ;
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_Message_2eproto_once;
@@ -495,7 +495,7 @@ data_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlready
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
   data_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-seckey_id_ = 0;
+seckey_id_ = 0u;
 }
 
 RespondMsg::~RespondMsg() {
@@ -531,7 +531,7 @@ void RespondMsg::Clear() {
   client_id_.ClearToEmpty();
   server_id_.ClearToEmpty();
   data_.ClearToEmpty();
-  seckey_id_ = 0;
+  seckey_id_ = 0u;
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -541,7 +541,7 @@ const char* RespondMsg::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID:
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch (tag >> 3) {
-      // int32 seckey_id = 1;
+      // uint32 seckey_id = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
           seckey_id_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
@@ -605,10 +605,10 @@ uint8_t* RespondMsg::_InternalSerialize(
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // int32 seckey_id = 1;
+  // uint32 seckey_id = 1;
   if (this->_internal_seckey_id() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_seckey_id(), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteUInt32ToArray(1, this->_internal_seckey_id(), target);
   }
 
   // bytes client_id = 2;
@@ -666,9 +666,9 @@ size_t RespondMsg::ByteSizeLong() const {
         this->_internal_data());
   }
 
-  // int32 seckey_id = 1;
+  // uint32 seckey_id = 1;
   if (this->_internal_seckey_id() != 0) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_seckey_id());
+    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::UInt32SizePlusOne(this->_internal_seckey_id());
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);

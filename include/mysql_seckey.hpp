@@ -2,38 +2,13 @@
 #define MYSQL_SECKEY_H
 
 #include <mysqlx/xdevapi.h>
-#include <iostream>
-#include <tuple>
-#include <chrono>
+#include "struct_seckey.h"
 
 namespace platform {
 
-// 形式为 xxxx-xx-xx
-using Date = std::array<char, 11>;
-
-struct DBInfo {
-    std::string host_name;
-    std::string user_name;
-    std::string password;
-    std::string data_base;
-};
-
-struct RowSeckeyInfo {
-    std::array<char, 10> key_id;
-    Date create_time;
-    bool state;
-    std::array<char, 5> client_id,
-                        server_id;
-    std::string seckey;
-};
-
-struct RowSeckeyNode {
-    std::array<char, 5> id;
-    std::string name;
-    Date create_time;
-    std::array<char, 13> authcode; // 授权码
-    bool state;
-    std::string node_desc; // 描述
+struct SelectInventory {
+    std::string where;
+    std::uint16_t limit{0};
 };
 
 class SeckeyMysql {
@@ -41,10 +16,6 @@ private:
     std::string url_{"mysqlx://"};
     std::string schema_name_;
 public:
-    enum class TableName {
-        kSeckey_info,
-        kSeckey_node,
-    };
     explicit SeckeyMysql(std::string_view json_file);
     explicit SeckeyMysql(const DBInfo &db_info);
     inline std::string URL() const noexcept {
@@ -61,7 +32,13 @@ public:
     }
     // 返回select * from table_name的内容
     std::list<mysqlx::Row> Select(std::string_view table_name);
-    std::list<mysqlx::Row> Select(TableName table_name);
+    std::list<mysqlx::Row> Select(const TableName &table_name);
+    // 返回指定内容内容, 都是返回select *
+    std::list<mysqlx::Row> Select(std::string_view table_name,
+                                  SelectInventory &inventory);
+    std::list<mysqlx::Row> Select(const TableName &table_name,
+                                  SelectInventory &inventory);
+    // 将对应表的行(没有null)插入表中
     template<TableName table_name, typename T>
     void Insert(T value) {
         mysqlx::Session sess{url_};
@@ -91,12 +68,21 @@ public:
     }
 private:
     inline mysqlx::Table InitTableImpl(const TableName &table_name,
-                                       mysqlx::Session &sess) {
+                                       mysqlx::Session &sess) const {
         switch (table_name) {
         case TableName::kSeckey_info:
             return sess.getSchema(schema_name_).getTable("seckey_info");
         case TableName::kSeckey_node:
             return sess.getSchema(schema_name_).getTable("seckey_node");
+        }
+    }
+    inline void SelectSetImpl(mysqlx::TableSelect &table_select,
+                              SelectInventory &inventory) const {
+        if (!inventory.where.empty()) {
+            table_select.where(inventory.where);
+        }
+        if (inventory.limit != 0) {
+            table_select.limit(inventory.limit);
         }
     }
 };

@@ -31,15 +31,30 @@ std::list<mysqlx::Row> SeckeyMysql::Select(std::string_view table_name) {
     return row_result.fetchAll();
 }
 
-std::list<mysqlx::Row> SeckeyMysql::Select(TableName table_name) {
+std::list<mysqlx::Row> SeckeyMysql::Select(const TableName &table_name) {
     mysqlx::Session sess{url_};
     auto table = InitTableImpl(table_name, sess);
     mysqlx::TableSelect table_select = table.select("*");
     mysqlx::RowResult row_result = table_select.execute();
     return row_result.fetchAll();
 }
-// void SeckeyMysql::Insert(std::string_view table_name) {
-//     auto table = InitTableImpl(table_name);
-//     mysqlx::TableInsert table_insert = table.insert();
 
-// }
+std::list<mysqlx::Row> SeckeyMysql::Select(std::string_view table_name,
+                                           SelectInventory &inventory) {
+    mysqlx::Session sess{url_};
+    auto table = sess.getSchema(schema_name_).getTable(table_name.data());
+    mysqlx::TableSelect table_select = table.select("*");
+    SelectSetImpl(table_select, inventory);
+    mysqlx::RowResult row_result = table_select.execute();
+    return row_result.fetchAll();
+}
+
+std::list<mysqlx::Row> SeckeyMysql::Select(const TableName &table_name,
+                                           SelectInventory &inventory) {
+    mysqlx::Session sess{url_};
+    auto table = InitTableImpl(table_name, sess);
+    mysqlx::TableSelect table_select = table.select("*");
+    SelectSetImpl(table_select, inventory);
+    mysqlx::RowResult row_result = table_select.execute();
+    return row_result.fetchAll();
+}

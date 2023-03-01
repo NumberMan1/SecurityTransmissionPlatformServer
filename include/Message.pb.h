@@ -437,13 +437,13 @@ class RespondMsg final :
   std::string* _internal_mutable_data();
   public:
 
-  // int32 seckey_id = 1;
+  // uint32 seckey_id = 1;
   void clear_seckey_id();
-  int32_t seckey_id() const;
-  void set_seckey_id(int32_t value);
+  uint32_t seckey_id() const;
+  void set_seckey_id(uint32_t value);
   private:
-  int32_t _internal_seckey_id() const;
-  void _internal_set_seckey_id(int32_t value);
+  uint32_t _internal_seckey_id() const;
+  void _internal_set_seckey_id(uint32_t value);
   public:
 
   // @@protoc_insertion_point(class_scope:proto_info.RespondMsg)
@@ -456,7 +456,7 @@ class RespondMsg final :
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr client_id_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr server_id_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr data_;
-  int32_t seckey_id_;
+  uint32_t seckey_id_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_Message_2eproto;
 };
@@ -679,22 +679,22 @@ inline void RequestMsg::set_allocated_data(std::string* data) {
 
 // RespondMsg
 
-// int32 seckey_id = 1;
+// uint32 seckey_id = 1;
 inline void RespondMsg::clear_seckey_id() {
-  seckey_id_ = 0;
+  seckey_id_ = 0u;
 }
-inline int32_t RespondMsg::_internal_seckey_id() const {
+inline uint32_t RespondMsg::_internal_seckey_id() const {
   return seckey_id_;
 }
-inline int32_t RespondMsg::seckey_id() const {
+inline uint32_t RespondMsg::seckey_id() const {
   // @@protoc_insertion_point(field_get:proto_info.RespondMsg.seckey_id)
   return _internal_seckey_id();
 }
-inline void RespondMsg::_internal_set_seckey_id(int32_t value) {
+inline void RespondMsg::_internal_set_seckey_id(uint32_t value) {
   
   seckey_id_ = value;
 }
-inline void RespondMsg::set_seckey_id(int32_t value) {
+inline void RespondMsg::set_seckey_id(uint32_t value) {
   _internal_set_seckey_id(value);
   // @@protoc_insertion_point(field_set:proto_info.RespondMsg.seckey_id)
 }
